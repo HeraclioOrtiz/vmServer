@@ -1,0 +1,100 @@
+<?php
+// app/Services/SociosApi.php
+namespace App\Services;
+
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+
+class SociosApi
+{
+    protected string $base;
+    protected string $login;
+    protected string $token;
+    protected string $imgBase;
+    protected int $timeout;
+    protected bool $verify;
+
+    public function __construct()
+    {
+        $cfg = config('services.socios');
+
+        $this->base    = rtrim($cfg['base'] ?? '', '/');         // ej: https://clubvillamitre.com/api_back_socios
+        $this->login   = (string)($cfg['login'] ?? '');          // ej: surtek
+        $this->token   = (string)($cfg['token'] ?? '');          // ej: 4fd8...
+        $this->imgBase = rtrim($cfg['img_base'] ?? '', '/');     // ej: https://clubvillamitre.com/images/socios
+        $this->timeout = (int)($cfg['timeout'] ?? 15);
+        $this->verify  = (bool)($cfg['verify'] ?? true);         // en DEV podés setear false
+    }
+
+    /**
+     * Devuelve array del socio o null.
+     */
+    public function getSocioPorDni(string $dni): ?array
+    {
+        if ($this->base === '' || $this->login === '' || $this->token === '') {
+            Log::error('SociosApi: config incompleta', [
+                'base' => $this->base, 'login' => $this->login, 'token_len' => strlen($this->token)
+            ]);
+            return null;
+        }
+
+        $url = "{$this->base}/get_socio"; // SIN barra final
+        // ⚠️ TEMPORAL: verify => false para descartar problemas de SSL del server remoto
+        $resp = Http::withOptions([
+                'timeout' => $this->timeout,
+                'verify'  => $this->verify, // poné false si querés probar rápido
+            ])
+            ->asForm() // la API espera form-data/x-www-form-urlencoded
+            ->withHeaders([
+                'Authorization' => $this->token,
+                'Login'         => $this->login,
+            ])
+            ->post($url, ['dni' => $dni]);
+
+        if (!$resp->ok()) {
+            Log::error('SociosApi HTTP error', [
+                'status' => $resp->status(),
+                'url'    => $url,
+                'body'   => $resp->body(),
+            ]);
+            return null;
+        }
+
+        $json = $resp->json();
+        Log::info('SociosApi response', ['url'=>$url, 'json'=>$json]);
+
+        // Éxito típico: { estado:"0", result:{...}, msg:"Proceso OK" }
+        if (!empty($json['result']) && (($json['msg'] ?? '') === 'Proceso OK')) {
+            return $json['result'];
+        }
+
+        Log::warning('SociosApi sin result o msg no OK', ['json' => $json]);
+        return null;
+    }
+
+    /**
+     * Descarga la foto del socio (binario) o null.
+     */
+    public function fetchFotoSocio(string $socioId): ?string
+    {
+        if ($this->imgBase === '' || $socioId === '') return null;
+
+        $url = "{$this->imgBase}/{$socioId}.jpg";
+        $resp = Http::withOptions([
+                'timeout' => $this->timeout,
+                'verify'  => $this->verify,
+            ])->get($url);
+
+        if ($resp->ok() && str_starts_with($resp->header('Content-Type', ''), 'image/')) {
+            return $resp->body();
+        }
+
+        Log::warning('SociosApi foto no encontrada/ok', [
+            'status' => $resp->status(),
+            'url'    => $url,
+            'ct'     => $resp->header('Content-Type', ''),
+        ]);
+        return null;
+    }
+}
+

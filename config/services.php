@@ -27,6 +27,14 @@ return [
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
+	   'socios' => [
+        'base'     => env('SOCIOS_API_BASE', 'https://clubvillamitre.com/api_back_socios'),
+        'login'    => env('SOCIOS_API_LOGIN', 'surtek'),
+        'token'    => env('SOCIOS_API_TOKEN', ''),
+        'img_base' => env('SOCIOS_IMG_BASE', 'https://clubvillamitre.com/images/socios'),
+        'timeout'  => 15,
+        'verify'   => env('SOCIOS_API_VERIFY', true), // podés setear false temporalmente
+    ],
 
     'slack' => [
         'notifications' => [
