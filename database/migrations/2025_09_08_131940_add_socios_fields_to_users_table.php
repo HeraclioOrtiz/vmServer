@@ -12,8 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            //
-  $table->string('dni')->unique()->index();
+            // Campos específicos de la API del club (DNI ya existe)
             $table->string('nombre')->nullable();
             $table->string('apellido')->nullable();
             $table->string('nacionalidad')->nullable();
@@ -27,7 +26,7 @@ return new class extends Migration
             $table->string('barcode')->nullable();
             $table->string('estado_socio')->nullable();
             $table->string('avatar_path')->nullable(); // almacenamiento local
-            $table->timestamp('api_update_ts')->nullable();
+            $table->timestamp('api_updated_at')->nullable();
         });
     }
 
@@ -37,10 +36,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            //
-  $table->dropColumn([
-                'dni','nombre','apellido','nacionalidad','nacimiento','domicilio','localidad',
-                'telefono','celular','categoria','socio_id','barcode','estado_socio','avatar_path','api_update_ts'
+            $table->dropColumn([
+                'nombre','apellido','nacionalidad','nacimiento','domicilio','localidad',
+                'telefono','celular','categoria','socio_id','barcode','estado_socio','avatar_path','api_updated_at'
             ]);
         });
     }

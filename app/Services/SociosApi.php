@@ -2,10 +2,12 @@
 
 namespace App\Services;
 
+use App\Contracts\SociosApiInterface;
+use App\Exceptions\ApiConnectionException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class SociosApi
+class SociosApi implements SociosApiInterface
 {
     protected string $base;
     protected string $login;
@@ -34,7 +36,7 @@ class SociosApi
                 'login' => $this->login,
                 'token_len' => strlen($this->token),
             ]);
-            return null;
+            throw new ApiConnectionException('SociosApi configuration is incomplete');
         }
 
         $url = "{$this->base}/get_socio";
@@ -78,12 +80,38 @@ class SociosApi
     {
         if (!$json) return null;
 
-        // Casos típicos de éxito observados:
+        // NUEVA LÓGICA: Solo estado "0" es válido según documentación
         // { estado:"0", result:{...}, msg:"Proceso OK" }
-        // A veces 'estado' varía, por eso validamos 'result' por presencia
-        if (!empty($json['result']) && is_array($json['result'])) {
-            return $json['result'];
+        // Otros estados contienen errores en el campo 'msg'
+        if (isset($json['estado']) && $json['estado'] === "0") {
+            if (!empty($json['result']) && is_array($json['result'])) {
+                // Verificar que tenga datos reales del socio (no solo campos nulos)
+                $result = $json['result'];
+                
+                // Un socio válido debe tener al menos ID y nombre/apellido
+                if (!empty($result['Id']) && (!empty($result['nombre']) || !empty($result['apellido']))) {
+                    return $result;
+                }
+                
+                // Si solo tiene campos nulos/vacíos, es una respuesta vacía
+                Log::info('SociosApi: respuesta exitosa pero sin datos de socio válidos', [
+                    'result_keys' => array_keys($result),
+                    'id' => $result['Id'] ?? null,
+                    'nombre' => $result['nombre'] ?? null,
+                    'apellido' => $result['apellido'] ?? null
+                ]);
+            }
         }
+        
+        // Log de errores de API
+        if (isset($json['estado']) && $json['estado'] !== "0") {
+            Log::warning('SociosApi error response', [
+                'estado' => $json['estado'],
+                'msg' => $json['msg'] ?? 'Sin mensaje de error',
+                'full_response' => $json
+            ]);
+        }
+        
         return null;
     }
 
@@ -117,25 +145,17 @@ class SociosApi
         return $json;
     }
 
-    public function fetchFotoSocio(string $socioId): ?string
+    /**
+     * Construye la URL directa de la foto del socio
+     * No es un endpoint, es una URL directa a la imagen
+     */
+    public function buildFotoUrl(string $socioId): ?string
     {
-        if ($this->imgBase === '' || $socioId === '') return null;
-
-        $url = "{$this->imgBase}/{$socioId}.jpg";
-        $resp = Http::withOptions([
-                'timeout' => $this->timeout,
-                'verify'  => $this->verify,
-            ])->get($url);
-
-        if ($resp->ok() && str_starts_with($resp->header('Content-Type', ''), 'image/')) {
-            return $resp->body();
+        if ($this->imgBase === '' || $socioId === '') {
+            return null;
         }
 
-        Log::warning('SociosApi foto no encontrada/ok', [
-            'status' => $resp->status(),
-            'url'    => $url,
-            'ct'     => $resp->header('Content-Type', ''),
-        ]);
-        return null;
+        // URL directa: https://clubvillamitre.com/images/socios/{socio_id}.jpg
+        return "{$this->imgBase}/{$socioId}.jpg";
     }
 }
