@@ -52,6 +52,13 @@ class UserResource extends JsonResource
             'suspendido' => $this->when($this->user_type->value === 'api', $this->suspendido),
             'categoria' => $this->when($this->user_type->value === 'api', $this->categoria),
             
+            // Campos del sistema (roles y permisos)
+            'is_professor' => $this->is_professor ?? false,
+            'is_admin' => $this->is_admin ?? false,
+            'permissions' => $this->permissions ?? [],
+            'account_status' => $this->account_status ?? 'active',
+            'type_label' => $this->type_label,
+            
             // Timestamps
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),

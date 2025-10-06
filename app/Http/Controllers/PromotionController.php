@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Services\PromotionService;
+use App\Services\User\PromotionService;
 use App\Http\Requests\PromoteRequest;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;

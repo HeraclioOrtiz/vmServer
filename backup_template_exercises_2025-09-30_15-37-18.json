@@ -1,0 +1,803 @@
+[
+    {
+        "id": 81,
+        "daily_template_id": 84,
+        "exercise_id": 4,
+        "display_order": 1,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 82,
+        "daily_template_id": 84,
+        "exercise_id": 6,
+        "display_order": 2,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 83,
+        "daily_template_id": 84,
+        "exercise_id": 26,
+        "display_order": 3,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 84,
+        "daily_template_id": 84,
+        "exercise_id": 46,
+        "display_order": 4,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 85,
+        "daily_template_id": 84,
+        "exercise_id": 59,
+        "display_order": 5,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 86,
+        "daily_template_id": 85,
+        "exercise_id": 1,
+        "display_order": 1,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 87,
+        "daily_template_id": 85,
+        "exercise_id": 62,
+        "display_order": 2,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 88,
+        "daily_template_id": 85,
+        "exercise_id": 18,
+        "display_order": 3,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 89,
+        "daily_template_id": 85,
+        "exercise_id": 64,
+        "display_order": 4,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 90,
+        "daily_template_id": 86,
+        "exercise_id": 6,
+        "display_order": 1,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 91,
+        "daily_template_id": 86,
+        "exercise_id": 7,
+        "display_order": 2,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 92,
+        "daily_template_id": 86,
+        "exercise_id": 4,
+        "display_order": 3,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 93,
+        "daily_template_id": 86,
+        "exercise_id": 60,
+        "display_order": 4,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 94,
+        "daily_template_id": 86,
+        "exercise_id": 61,
+        "display_order": 5,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 95,
+        "daily_template_id": 86,
+        "exercise_id": 59,
+        "display_order": 6,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 96,
+        "daily_template_id": 87,
+        "exercise_id": 38,
+        "display_order": 1,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 97,
+        "daily_template_id": 87,
+        "exercise_id": 8,
+        "display_order": 2,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 98,
+        "daily_template_id": 87,
+        "exercise_id": 54,
+        "display_order": 3,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 99,
+        "daily_template_id": 87,
+        "exercise_id": 36,
+        "display_order": 4,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 100,
+        "daily_template_id": 87,
+        "exercise_id": 65,
+        "display_order": 5,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 101,
+        "daily_template_id": 88,
+        "exercise_id": 6,
+        "display_order": 1,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 102,
+        "daily_template_id": 88,
+        "exercise_id": 4,
+        "display_order": 2,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 103,
+        "daily_template_id": 88,
+        "exercise_id": 57,
+        "display_order": 3,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 104,
+        "daily_template_id": 88,
+        "exercise_id": 39,
+        "display_order": 4,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 105,
+        "daily_template_id": 88,
+        "exercise_id": 42,
+        "display_order": 5,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 106,
+        "daily_template_id": 89,
+        "exercise_id": 62,
+        "display_order": 1,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 107,
+        "daily_template_id": 89,
+        "exercise_id": 1,
+        "display_order": 2,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 108,
+        "daily_template_id": 89,
+        "exercise_id": 63,
+        "display_order": 3,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 109,
+        "daily_template_id": 89,
+        "exercise_id": 64,
+        "display_order": 4,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 110,
+        "daily_template_id": 89,
+        "exercise_id": 18,
+        "display_order": 5,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 111,
+        "daily_template_id": 90,
+        "exercise_id": 8,
+        "display_order": 1,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 112,
+        "daily_template_id": 90,
+        "exercise_id": 64,
+        "display_order": 2,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 113,
+        "daily_template_id": 90,
+        "exercise_id": 60,
+        "display_order": 3,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 114,
+        "daily_template_id": 90,
+        "exercise_id": 1,
+        "display_order": 4,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 115,
+        "daily_template_id": 91,
+        "exercise_id": 63,
+        "display_order": 1,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 116,
+        "daily_template_id": 91,
+        "exercise_id": 59,
+        "display_order": 2,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 117,
+        "daily_template_id": 91,
+        "exercise_id": 8,
+        "display_order": 3,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 118,
+        "daily_template_id": 91,
+        "exercise_id": 62,
+        "display_order": 4,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 119,
+        "daily_template_id": 91,
+        "exercise_id": 60,
+        "display_order": 5,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 120,
+        "daily_template_id": 91,
+        "exercise_id": 64,
+        "display_order": 6,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 121,
+        "daily_template_id": 92,
+        "exercise_id": 1,
+        "display_order": 1,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 122,
+        "daily_template_id": 92,
+        "exercise_id": 62,
+        "display_order": 2,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 123,
+        "daily_template_id": 92,
+        "exercise_id": 59,
+        "display_order": 3,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 124,
+        "daily_template_id": 92,
+        "exercise_id": 7,
+        "display_order": 4,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 125,
+        "daily_template_id": 92,
+        "exercise_id": 61,
+        "display_order": 5,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 126,
+        "daily_template_id": 93,
+        "exercise_id": 8,
+        "display_order": 1,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 127,
+        "daily_template_id": 93,
+        "exercise_id": 15,
+        "display_order": 2,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 128,
+        "daily_template_id": 93,
+        "exercise_id": 11,
+        "display_order": 3,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 129,
+        "daily_template_id": 93,
+        "exercise_id": 66,
+        "display_order": 4,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 130,
+        "daily_template_id": 94,
+        "exercise_id": 8,
+        "display_order": 1,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 131,
+        "daily_template_id": 94,
+        "exercise_id": 60,
+        "display_order": 2,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 132,
+        "daily_template_id": 94,
+        "exercise_id": 58,
+        "display_order": 3,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 133,
+        "daily_template_id": 95,
+        "exercise_id": 1,
+        "display_order": 1,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 134,
+        "daily_template_id": 95,
+        "exercise_id": 64,
+        "display_order": 2,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 135,
+        "daily_template_id": 95,
+        "exercise_id": 61,
+        "display_order": 3,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 136,
+        "daily_template_id": 96,
+        "exercise_id": 1,
+        "display_order": 1,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 137,
+        "daily_template_id": 96,
+        "exercise_id": 62,
+        "display_order": 2,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 138,
+        "daily_template_id": 96,
+        "exercise_id": 59,
+        "display_order": 3,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 139,
+        "daily_template_id": 96,
+        "exercise_id": 61,
+        "display_order": 4,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 140,
+        "daily_template_id": 97,
+        "exercise_id": 6,
+        "display_order": 1,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 141,
+        "daily_template_id": 97,
+        "exercise_id": 4,
+        "display_order": 2,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 142,
+        "daily_template_id": 97,
+        "exercise_id": 20,
+        "display_order": 3,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 143,
+        "daily_template_id": 97,
+        "exercise_id": 32,
+        "display_order": 4,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 144,
+        "daily_template_id": 98,
+        "exercise_id": 59,
+        "display_order": 1,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 145,
+        "daily_template_id": 98,
+        "exercise_id": 18,
+        "display_order": 2,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 146,
+        "daily_template_id": 98,
+        "exercise_id": 63,
+        "display_order": 3,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 147,
+        "daily_template_id": 98,
+        "exercise_id": 64,
+        "display_order": 4,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 148,
+        "daily_template_id": 99,
+        "exercise_id": 6,
+        "display_order": 1,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 149,
+        "daily_template_id": 99,
+        "exercise_id": 4,
+        "display_order": 2,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 150,
+        "daily_template_id": 99,
+        "exercise_id": 15,
+        "display_order": 3,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 151,
+        "daily_template_id": 99,
+        "exercise_id": 45,
+        "display_order": 4,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 152,
+        "daily_template_id": 99,
+        "exercise_id": 62,
+        "display_order": 5,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 153,
+        "daily_template_id": 99,
+        "exercise_id": 14,
+        "display_order": 6,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 154,
+        "daily_template_id": 100,
+        "exercise_id": 18,
+        "display_order": 1,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 155,
+        "daily_template_id": 100,
+        "exercise_id": 62,
+        "display_order": 2,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 156,
+        "daily_template_id": 100,
+        "exercise_id": 60,
+        "display_order": 3,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 157,
+        "daily_template_id": 101,
+        "exercise_id": 61,
+        "display_order": 1,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 158,
+        "daily_template_id": 101,
+        "exercise_id": 64,
+        "display_order": 2,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 159,
+        "daily_template_id": 101,
+        "exercise_id": 59,
+        "display_order": 3,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 160,
+        "daily_template_id": 101,
+        "exercise_id": 1,
+        "display_order": 4,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 161,
+        "daily_template_id": 101,
+        "exercise_id": 8,
+        "display_order": 5,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 162,
+        "daily_template_id": 102,
+        "exercise_id": 8,
+        "display_order": 1,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 163,
+        "daily_template_id": 102,
+        "exercise_id": 6,
+        "display_order": 2,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 164,
+        "daily_template_id": 102,
+        "exercise_id": 4,
+        "display_order": 3,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 165,
+        "daily_template_id": 102,
+        "exercise_id": 32,
+        "display_order": 4,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 166,
+        "daily_template_id": 103,
+        "exercise_id": 18,
+        "display_order": 1,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:03",
+        "updated_at": "2025-09-25 23:07:03"
+    },
+    {
+        "id": 167,
+        "daily_template_id": 103,
+        "exercise_id": 64,
+        "display_order": 2,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:04",
+        "updated_at": "2025-09-25 23:07:04"
+    },
+    {
+        "id": 168,
+        "daily_template_id": 103,
+        "exercise_id": 60,
+        "display_order": 3,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:04",
+        "updated_at": "2025-09-25 23:07:04"
+    },
+    {
+        "id": 169,
+        "daily_template_id": 103,
+        "exercise_id": 61,
+        "display_order": 4,
+        "notes": null,
+        "created_at": "2025-09-25 23:07:04",
+        "updated_at": "2025-09-25 23:07:04"
+    }
+]

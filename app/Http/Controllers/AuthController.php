@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\AuthResource;
-use App\Services\AuthService;
+use App\Services\Auth\AuthService;
 use Illuminate\Http\Request;
 
 class AuthController extends Controller
@@ -19,19 +19,42 @@ class AuthController extends Controller
      */
     public function login(LoginRequest $request)
     {
-        $result = $this->authService->authenticate(
-            $request->dni,
-            $request->password
-        );
+        try {
+            $result = $this->authService->authenticate(
+                $request->dni,
+                $request->password
+            );
 
-        $token = $result->user->createToken('auth')->plainTextToken;
+            $token = $result->user->createToken('auth')->plainTextToken;
 
-        return AuthResource::make([
-            'token' => $token,
-            'user' => $result->user,
-            'fetched_from_api' => $result->fetchedFromApi,
-            'refreshed' => $result->refreshed ?? false
-        ]);
+            return AuthResource::make([
+                'token' => $token,
+                'user' => $result->user,
+                'fetched_from_api' => $result->fetchedFromApi,
+                'refreshed' => $result->refreshed ?? false
+            ]);
+            
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Re-throw validation exceptions (handled by Laravel)
+            throw $e;
+            
+        } catch (\Exception $e) {
+            // Log the critical error for debugging
+            \Log::error('Critical error in login', [
+                'dni' => $request->dni,
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error interno del servidor durante el login',
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
+                'debug' => config('app.debug') ? $e->getTraceAsString() : null
+            ], 500);
+        }
     }
 
     /**
@@ -89,7 +112,10 @@ class AuthController extends Controller
     public function me(Request $request)
     {
         return AuthResource::make([
-            'user' => $request->user()
+            'token' => null, // No necesitamos devolver token en /me
+            'user' => $request->user(),
+            'fetched_from_api' => false,
+            'refreshed' => false
         ]);
     }
 }

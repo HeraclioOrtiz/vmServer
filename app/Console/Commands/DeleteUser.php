@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\User;
-use App\Services\CacheService;
+use App\Services\Core\CacheService;
 use Illuminate\Console\Command;
 
 class DeleteUser extends Command

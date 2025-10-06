@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Contracts\MobileApiInterface;
-use App\Services\AuthService;
-use App\Services\UserService;
-use App\Services\PromotionService;
+use App\Services\Auth\AuthService;
+use App\Services\User\UserService;
+use App\Services\User\PromotionService;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\UpdateUserRequest;

@@ -61,6 +61,16 @@ class User extends Authenticatable
         'update_ts',
         'validmail_st',
         'validmail_ts',
+        // Campos de administración
+        'is_admin',
+        'permissions',
+        'admin_notes',
+        'account_status',
+        'professor_since',
+        'student_gym',
+        'student_gym_since',
+        'session_timeout',
+        'allowed_ips',
     ];
 
     /**
@@ -98,6 +108,13 @@ class User extends Authenticatable
         'facturado' => 'boolean',
         'validmail_st' => 'boolean',
         'semaforo' => 'integer',
+        // Campos de administración
+        'is_admin' => 'boolean',
+        'permissions' => 'array',
+        'professor_since' => 'datetime',
+        'student_gym' => 'boolean',
+        'student_gym_since' => 'datetime',
+        'allowed_ips' => 'array',
     ];
 
     /**
@@ -107,6 +124,7 @@ class User extends Authenticatable
      */
     protected $appends = [
         'foto_url',
+        'type_label',
     ];
 
     /**
@@ -204,6 +222,20 @@ class User extends Authenticatable
     }
 
     /**
+     * Accessor para type_label - etiqueta legible del tipo de usuario
+     */
+    protected function typeLabel(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => match($this->user_type) {
+                UserType::LOCAL => 'Usuario Local',
+                UserType::API => 'Usuario API',
+                default => 'Usuario'
+            }
+        );
+    }
+
+    /**
      * Determina si el usuario puede ser promocionado
      */
     public function canPromote(): bool
@@ -277,5 +309,307 @@ class User extends Authenticatable
             UserType::LOCAL => ['name', 'email', 'phone', 'password'],
             UserType::API => ['phone'], // Solo algunos campos para usuarios API
         };
+    }
+
+    // ==================== MÉTODOS DE ADMINISTRACIÓN ====================
+
+    /**
+     * Scope para administradores
+     */
+    public function scopeAdmins($query)
+    {
+        return $query->where('is_admin', true);
+    }
+
+    /**
+     * Scope para profesores
+     */
+    public function scopeProfessors($query)
+    {
+        return $query->where('is_professor', true);
+    }
+
+    /**
+     * Scope para estudiantes de gimnasio
+     */
+    public function scopeGymStudents($query)
+    {
+        return $query->where('student_gym', true);
+    }
+
+    /**
+     * Scope para usuarios activos
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('account_status', 'active');
+    }
+
+    /**
+     * Scope para usuarios suspendidos
+     */
+    public function scopeSuspended($query)
+    {
+        return $query->where('account_status', 'suspended');
+    }
+
+    /**
+     * Determina si el usuario es administrador
+     */
+    public function isAdmin(): bool
+    {
+        return $this->is_admin === true;
+    }
+
+    /**
+     * Determina si el usuario es super administrador
+     */
+    public function isSuperAdmin(): bool
+    {
+        return $this->isAdmin() && $this->hasPermission('super_admin');
+    }
+
+    /**
+     * Determina si el usuario tiene un permiso específico
+     */
+    public function hasPermission(string $permission): bool
+    {
+        if (!$this->permissions) {
+            return false;
+        }
+
+        return in_array($permission, $this->permissions);
+    }
+
+    /**
+     * Determina si el usuario puede gestionar otros usuarios
+     */
+    public function canManageUsers(): bool
+    {
+        return $this->isAdmin() || $this->hasPermission('user_management');
+    }
+
+    /**
+     * Determina si el usuario puede gestionar el gimnasio
+     */
+    public function canManageGym(): bool
+    {
+        return $this->is_professor || $this->hasPermission('gym_admin');
+    }
+
+    /**
+     * Determina si el usuario puede ver reportes
+     */
+    public function canViewReports(): bool
+    {
+        return $this->isAdmin() || $this->hasPermission('reports_access');
+    }
+
+    /**
+     * Determina si el usuario puede ver logs de auditoría
+     */
+    public function canViewAuditLogs(): bool
+    {
+        return $this->isAdmin() || $this->hasPermission('audit_logs');
+    }
+
+    /**
+     * Asigna rol de administrador
+     */
+    public function assignAdminRole(array $permissions = []): void
+    {
+        $this->update([
+            'is_admin' => true,
+            'permissions' => $permissions,
+        ]);
+    }
+
+    /**
+     * Remueve rol de administrador
+     */
+    public function removeAdminRole(): void
+    {
+        $this->update([
+            'is_admin' => false,
+            'permissions' => null,
+        ]);
+    }
+
+    /**
+     * Asigna rol de profesor
+     */
+    public function assignProfessorRole(array $qualifications = []): void
+    {
+        $this->update([
+            'is_professor' => true,
+            'professor_since' => now(),
+            'admin_notes' => $qualifications['notes'] ?? null,
+        ]);
+    }
+
+    /**
+     * Remueve rol de profesor
+     */
+    public function removeProfessorRole(): void
+    {
+        $this->update([
+            'is_professor' => false,
+            'professor_since' => null,
+        ]);
+    }
+
+    /**
+     * Asigna acceso a gimnasio
+     */
+    public function grantGymAccess(): void
+    {
+        $this->update([
+            'student_gym' => true,
+            'student_gym_since' => now(),
+        ]);
+    }
+
+    /**
+     * Remueve acceso a gimnasio
+     */
+    public function revokeGymAccess(): void
+    {
+        $this->update([
+            'student_gym' => false,
+            'student_gym_since' => null,
+        ]);
+    }
+
+    /**
+     * Verifica si el usuario tiene acceso a gimnasio
+     */
+    public function hasGymAccess(): bool
+    {
+        return $this->student_gym === true;
+    }
+
+    /**
+     * Suspende la cuenta del usuario
+     */
+    public function suspend(string $reason = null): void
+    {
+        $this->update([
+            'account_status' => 'suspended',
+            'admin_notes' => $reason ? "Suspendido: {$reason}" : 'Cuenta suspendida',
+        ]);
+    }
+
+    /**
+     * Activa la cuenta del usuario
+     */
+    public function activate(): void
+    {
+        $this->update([
+            'account_status' => 'active',
+        ]);
+    }
+
+    /**
+     * Obtiene estadísticas del profesor (si es profesor)
+     */
+    public function getProfessorStats(): array
+    {
+        if (!$this->is_professor) {
+            return [];
+        }
+
+        return [
+            'students_count' => \App\Models\Gym\WeeklyAssignment::where('created_by', $this->id)
+                ->distinct('user_id')->count('user_id'),
+            'templates_created' => \App\Models\Gym\DailyTemplate::where('created_by', $this->id)->count(),
+            'active_assignments' => \App\Models\Gym\WeeklyAssignment::where('created_by', $this->id)
+                ->where('week_end', '>=', now())->count(),
+            'total_assignments' => \App\Models\Gym\WeeklyAssignment::where('created_by', $this->id)->count(),
+        ];
+    }
+
+    /**
+     * Obtiene el historial de actividad reciente
+     */
+    public function getRecentActivity(int $limit = 10): array
+    {
+        return \App\Models\AuditLog::where('user_id', $this->id)
+            ->orderBy('created_at', 'desc')
+            ->limit($limit)
+            ->get()
+            ->toArray();
+    }
+
+    // ==================== RELACIONES ====================
+
+    /**
+     * Asignaciones semanales creadas por este usuario (si es profesor)
+     */
+    public function createdAssignments()
+    {
+        return $this->hasMany(\App\Models\Gym\WeeklyAssignment::class, 'created_by');
+    }
+
+    /**
+     * Plantillas diarias creadas por este usuario (si es profesor)
+     */
+    public function createdDailyTemplates()
+    {
+        return $this->hasMany(\App\Models\Gym\DailyTemplate::class, 'created_by');
+    }
+
+    /**
+     * Plantillas semanales creadas por este usuario (si es profesor)
+     */
+    public function createdWeeklyTemplates()
+    {
+        return $this->hasMany(\App\Models\Gym\WeeklyTemplate::class, 'created_by');
+    }
+
+    /**
+     * Asignaciones semanales recibidas por este usuario (si es estudiante)
+     */
+    public function receivedAssignments()
+    {
+        return $this->hasMany(\App\Models\Gym\WeeklyAssignment::class, 'user_id');
+    }
+
+    /**
+     * Logs de auditoría de este usuario
+     */
+    public function auditLogs()
+    {
+        return $this->hasMany(\App\Models\AuditLog::class);
+    }
+
+    /**
+     * Asignaciones profesor-estudiante cuando el usuario es profesor
+     */
+    public function professorAssignments()
+    {
+        return $this->hasMany(\App\Models\Gym\ProfessorStudentAssignment::class, 'professor_id');
+    }
+
+    /**
+     * Asignaciones profesor-estudiante cuando el usuario es estudiante
+     */
+    public function studentAssignments()
+    {
+        return $this->hasMany(\App\Models\Gym\ProfessorStudentAssignment::class, 'student_id');
+    }
+
+    /**
+     * Estudiantes asignados a este profesor (relación through)
+     */
+    public function assignedStudents()
+    {
+        return $this->hasManyThrough(
+            User::class,
+            \App\Models\Gym\ProfessorStudentAssignment::class,
+            'professor_id',  // FK en professor_student_assignments
+            'id',            // FK en users
+            'id',            // Local key en users (profesor)
+            'student_id'     // Local key en professor_student_assignments
+        )->where('professor_student_assignments.status', 'active');
     }
 }

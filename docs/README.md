@@ -1,80 +1,109 @@
-# 📚 DOCUMENTACIÓN DEL PROYECTO VILLA MITRE SERVER
+# 📚 Documentación - Villa Mitre Server
 
-## 🚀 **INICIO RÁPIDO**
+Bienvenido a la documentación completa del sistema Villa Mitre Server.
 
-### **🔧 Configuración Local**
-- [📋 Instalación Local](getting-started/local-setup.md) - Setup completo desarrollo
-- [🐳 Docker Setup](deployment/docker-setup.md) - Configuración con Docker
-- [⚙️ Variables de Entorno](getting-started/environment.md) - Configuración .env
-
-### **🌐 Deployment**
-- [🚀 Deploy Apache](deployment/deploy.md) - Deployment producción
-- [📋 Checklist Deploy](deployment/DEPLOYMENT-CHECKLIST.md) - Lista verificación
-- [🔄 Migración Docker→Apache](deployment/apache-deploy.md) - Guía migración
-
-## 📖 **DOCUMENTACIÓN TÉCNICA**
-
-### **🔌 API & Integración**
-- [📱 Contratos Mobile](api/mobile-contracts.md) - Endpoints y contratos API
-- [🔗 API Externa](api/external-integration.md) - Integración Club Villa Mitre
-- [🔐 Autenticación](api/authentication.md) - Sistema auth y tokens
-
-### **💻 Desarrollo**
-- [🎨 Frontend Changes](development/frontend-changes.md) - Cambios requeridos frontend
-- [🔧 Compatibilidad](development/frontend-compatibility.md) - Guía compatibilidad
-- [🧪 Testing Guide](development/testing-guide.md) - Guías de testing
-- [🐛 Debugging](development/debugging.md) - Herramientas debug
-
-### **🏗️ Arquitectura**
-- [📊 Diseño Base Datos](architecture/database-design.md) - Estructura BD
-- [⚡ Servicios](architecture/services-overview.md) - Arquitectura servicios
-- [🔄 APIs Externas](architecture/external-apis.md) - Integración APIs
-
-## 📋 **ESTRUCTURA DEL PROYECTO**
+## 🗂️ **Estructura de Documentación**
 
 ```
-vmServer/
-├── app/
-│   ├── Http/Controllers/     # Controladores API
-│   ├── Services/            # Lógica de negocio
-│   ├── Models/              # Modelos Eloquent
-│   ├── DTOs/                # Objetos transferencia datos
-│   └── Contracts/           # Interfaces
-├── database/
-│   ├── migrations/          # Migraciones BD
-│   └── seeders/            # Datos iniciales
-├── docs/                   # Documentación (este directorio)
-└── temp-cleanup/           # Archivos temporales
+docs/
+├── 📖 api/                     # Documentación de API
+├── 🏗️ architecture/            # Arquitectura del sistema  
+├── 👨‍💼 admin-panel/            # Panel de administración
+├── 🏋️ gym/                     # Sistema de gimnasio
+├── 🧪 testing/                 # Testing y QA
+├── 🚀 deployment/              # Deployment y DevOps
+├── 💾 database/                # Base de datos
+└── 🛠️ development/             # Desarrollo
 ```
 
-## 🎯 **FUNCIONALIDADES PRINCIPALES**
+## 🎯 **Guías de Inicio Rápido**
 
-- ✅ **Autenticación unificada** - Local + API externa
-- ✅ **Promoción automática** - Usuario local → API
-- ✅ **Gestión imágenes** - URLs directas desde API
-- ✅ **Cache inteligente** - Optimización rendimiento
-- ✅ **Manejo errores** - Logging y recuperación
-- ✅ **API RESTful** - Endpoints móviles completos
+### **Para Desarrolladores**
+- [Instalación y Configuración](../README.md#instalación-y-configuración)
+- [Arquitectura del Sistema](architecture/SERVICES-ARCHITECTURE.md)
+- [Guía de Testing](testing/TESTING-GUIDE-MAIN.md)
 
-## 🔧 **COMANDOS ÚTILES**
+### **Para Frontend Developers**
+- [API Documentation](api/API-DOCUMENTATION.md)
+- [Panel de Administración](admin-panel/)
+- [Sistema de Gimnasio](gym/GYM-DOCUMENTATION.md)
 
-```bash
-# Desarrollo
-php artisan serve
-php artisan migrate
-php artisan cache:clear
+### **Para DevOps**
+- [Deployment Guide](deployment/)
+- [Database Setup](database/)
+- [Development Environment](development/)
 
-# Testing
-php artisan test
-php artisan tinker
+## 📋 **Documentación por Módulos**
 
-# Debug
-php artisan route:list
-php artisan config:show
-```
+### **🔐 Sistema de Autenticación**
+- [API de Autenticación](api/API-DOCUMENTATION.md#authentication-endpoints)
+- [Servicios de Auth](architecture/SERVICES-ARCHITECTURE.md#dominio-de-autenticación-auth)
+- [Testing de Auth](testing/TESTING-GUIDE-MAIN.md#tests-de-seguridad)
+
+### **👨‍💼 Panel de Administración**
+- [Guía Completa del Admin Panel](admin-panel/)
+- [CRUD Implementation](admin-panel/CRUD-IMPLEMENTATION-GUIDE.md)
+- [UI Components](admin-panel/UI-COMPONENTS-GUIDE.md)
+
+### **🏋️ Sistema de Gimnasio**
+- [Documentación Completa](gym/GYM-DOCUMENTATION.md)
+- [Reglas de Negocio](gym/GYM-BUSINESS-RULES.md)
+- [Panel de Profesores](admin-panel/GYM-PANEL-SPECS.md)
+- [API Móvil](gym/MOBILE-API-GUIDE.md)
+- [Arquitectura Técnica](gym/TECHNICAL-ARCHITECTURE.md)
+
+### **🏗️ Arquitectura y Desarrollo**
+- [Arquitectura de Servicios](architecture/SERVICES-ARCHITECTURE.md)
+- [Guía de Testing](testing/TESTING-GUIDE-MAIN.md)
+- [Development Setup](development/)
+
+## 🔧 **Referencias Técnicas**
+
+### **API Reference**
+- [Complete API Documentation](api/API-DOCUMENTATION.md)
+- [Mobile API Contracts](api/mobile-contracts.md)
+- [Error Codes & Handling](api/API-DOCUMENTATION.md#error-codes)
+
+### **Database**
+- [Schema Documentation](database/)
+- [Migrations Guide](../database/migrations/)
+- [Seeders & Factories](../database/seeders/)
+
+### **Testing**
+- [Testing Strategy](testing/TESTING-GUIDE-MAIN.md)
+- [Unit Tests](../tests/Unit/)
+- [Feature Tests](../tests/Feature/)
+
+## 📊 **Métricas y Monitoreo**
+
+### **Performance**
+- [Performance Guidelines](architecture/SERVICES-ARCHITECTURE.md#performance-y-monitoreo)
+- [Caching Strategy](architecture/SERVICES-ARCHITECTURE.md#optimizaciones-implementadas)
+- [Database Optimization](database/)
+
+### **Security**
+- [Security Best Practices](api/API-DOCUMENTATION.md#authentication--authorization)
+- [Audit Logging](api/API-DOCUMENTATION.md#audit-logs)
+- [Testing Security](testing/TESTING-GUIDE-MAIN.md#tests-de-seguridad)
+
+## 🚀 **Deployment & Operations**
+
+### **Deployment**
+- [Production Deployment](deployment/)
+- [Environment Configuration](../README.md#configuración-de-entorno)
+- [Troubleshooting](../README.md#troubleshooting)
+
+### **Maintenance**
+- [Update Procedures](CHANGELOG.md)
+- [Backup Strategies](deployment/)
+- [Monitoring Setup](deployment/)
+
+## 📝 **Changelog & Updates**
+
+- [Project Changelog](CHANGELOG.md)
+- [Documentation Updates](DOCUMENTATION-SUMMARY.md)
+- [Reorganization Summary](REORGANIZATION-SUMMARY.md)
 
 ---
-**Proyecto:** Villa Mitre Server API  
-**Versión:** 2.0  
-**Última actualización:** 2025-09-10  
-**Estado:** ✅ Producción Ready
+
+**Para más información, consulta el [README principal](../README.md) del proyecto.**

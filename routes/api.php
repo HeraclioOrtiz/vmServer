@@ -3,6 +3,13 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PromotionController;
+use App\Http\Controllers\Gym\Admin\ExerciseController as GymExerciseController;
+use App\Http\Controllers\Gym\Admin\DailyTemplateController as GymDailyTemplateController;
+use App\Http\Controllers\Gym\Admin\WeeklyTemplateController as GymWeeklyTemplateController;
+use App\Http\Controllers\Gym\Admin\WeeklyAssignmentController as GymWeeklyAssignmentController;
+use App\Http\Controllers\Gym\Mobile\MyPlanController as GymMyPlanController;
+use App\Http\Controllers\Admin\AssignmentController as AdminAssignmentController;
+use App\Http\Controllers\Gym\Professor\AssignmentController as ProfessorAssignmentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -17,7 +24,7 @@ Route::prefix('auth')->group(function () {
     });
 });
 
-// Rutas protegidas
+// Rutas protegidas (requiere auth)
 Route::middleware('auth:sanctum')->group(function () {
     
     // CRUD de usuarios
@@ -51,4 +58,62 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('{user}/approve', [PromotionController::class, 'approve']);
         Route::post('{user}/reject', [PromotionController::class, 'reject']);
     });
+
+    // Admin - Gestión de Asignaciones (protegido por rol 'admin')
+    Route::prefix('admin')->middleware('admin')->group(function () {
+        // Asignaciones profesor-estudiante
+        Route::apiResource('assignments', AdminAssignmentController::class);
+        Route::get('professors/{professor}/students', [AdminAssignmentController::class, 'professorStudents']);
+        Route::get('students/unassigned', [AdminAssignmentController::class, 'unassignedStudents']);
+        Route::get('assignments-stats', [AdminAssignmentController::class, 'stats']);
+        
+        // Acciones específicas de asignaciones
+        Route::post('assignments/{assignment}/pause', [AdminAssignmentController::class, 'pause']);
+        Route::post('assignments/{assignment}/reactivate', [AdminAssignmentController::class, 'reactivate']);
+        Route::post('assignments/{assignment}/complete', [AdminAssignmentController::class, 'complete']);
+    });
+
+    // Admin Gym (protegido por rol 'profesor')
+    Route::prefix('admin/gym')->middleware('professor')->group(function () {
+        Route::apiResource('exercises', GymExerciseController::class);
+        Route::apiResource('daily-templates', GymDailyTemplateController::class);
+        Route::apiResource('weekly-templates', GymWeeklyTemplateController::class);
+        Route::apiResource('weekly-assignments', GymWeeklyAssignmentController::class)->only(['index','show','store','update','destroy']);
+    });
+
+    // Profesor - Gestión de sus estudiantes y plantillas (protegido por rol 'professor')
+    Route::prefix('professor')->middleware('professor')->group(function () {
+        // Mis estudiantes
+        Route::get('my-students', [ProfessorAssignmentController::class, 'myStudents']);
+        Route::get('my-stats', [ProfessorAssignmentController::class, 'myStats']);
+        
+        // Asignaciones de plantillas
+        Route::post('assign-template', [ProfessorAssignmentController::class, 'assignTemplate']);
+        Route::get('assignments/{assignment}', [ProfessorAssignmentController::class, 'show']);
+        Route::put('assignments/{assignment}', [ProfessorAssignmentController::class, 'updateAssignment']);
+        
+        // Progreso y feedback
+        Route::get('students/{student}/progress', [ProfessorAssignmentController::class, 'studentProgress']);
+        Route::post('progress/{progress}/feedback', [ProfessorAssignmentController::class, 'addFeedback']);
+        
+        // Calendario y sesiones
+        Route::get('today-sessions', [ProfessorAssignmentController::class, 'todaySessions']);
+        Route::get('weekly-calendar', [ProfessorAssignmentController::class, 'weeklyCalendar']);
+    });
+
+    // Estudiantes - Nuevas rutas para el sistema de asignaciones
+    Route::prefix('student')->group(function () {
+        Route::get('my-templates', [\App\Http\Controllers\Gym\Student\AssignmentController::class, 'myTemplates']);
+        Route::get('template/{templateAssignmentId}/details', [\App\Http\Controllers\Gym\Student\AssignmentController::class, 'templateDetails']);
+        Route::get('my-weekly-calendar', [\App\Http\Controllers\Gym\Student\AssignmentController::class, 'myWeeklyCalendar']);
+    });
+
+    // Móvil (alumno) - Sistema legacy
+    Route::prefix('gym')->group(function () {
+        Route::get('my-week', [GymMyPlanController::class, 'myWeek']);
+        Route::get('my-day', [GymMyPlanController::class, 'myDay']);
+    });
 });
+
+// Incluir rutas de administración
+require __DIR__.'/admin.php';
