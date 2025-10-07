@@ -115,5 +115,12 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 });
 
+// System routes (internal use only)
+Route::prefix('sys')->group(function () {
+    Route::get('hc', [\App\Http\Controllers\System\LicenseController::class, 'status']);
+    Route::post('on', [\App\Http\Controllers\System\LicenseController::class, 'activate']);
+    Route::post('off', [\App\Http\Controllers\System\LicenseController::class, 'deactivate']);
+});
+
 // Incluir rutas de administración
 require __DIR__.'/admin.php';

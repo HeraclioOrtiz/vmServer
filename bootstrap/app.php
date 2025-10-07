@@ -6,6 +6,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\EnsureProfessor;
 use App\Http\Middleware\EnsureAdmin;
+use App\Http\Middleware\CheckLicense;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -28,6 +29,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'professor' => EnsureProfessor::class,
             'admin' => EnsureAdmin::class,
+            'license' => CheckLicense::class,
+        ]);
+        
+        // Aplicar middleware de licencia globalmente a todas las rutas API
+        $middleware->api(append: [
+            CheckLicense::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
