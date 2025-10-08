@@ -73,6 +73,11 @@ class SocioDataMappingService
                 // Foto
                 'foto_url' => $this->sanitizeUrl($socio['foto_url'] ?? null),
                 
+                // ⚠️ TEMPORAL: Acceso automático al gimnasio para todos los usuarios API
+                // TODO: Remover cuando se implemente lógica de asignación manual
+                'student_gym' => true,
+                'student_gym_since' => now(),
+                
                 // Timestamp de actualización
                 'api_updated_at' => now(),
             ];

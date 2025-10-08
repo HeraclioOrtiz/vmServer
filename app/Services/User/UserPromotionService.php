@@ -67,6 +67,10 @@ class UserPromotionService
 
         $user->promoteToApi($apiData);
         
+        // ⚠️ TEMPORAL: Asignación automática al profesor predeterminado (DNI: 22222222)
+        // TODO: Remover cuando se implemente selección manual de profesor por admin
+        $this->assignToDefaultProfessor($user->fresh());
+        
         // Actualizar cache
         $this->cacheService->putUser($user->fresh());
         
@@ -79,6 +83,7 @@ class UserPromotionService
                 'from_type' => 'local',
                 'to_type' => 'api',
                 'socio_id' => $apiData['socio_id'] ?? null,
+                'auto_assigned_to_professor' => true, // TEMPORAL
             ],
             severity: 'medium',
             category: 'user_management'
@@ -264,5 +269,80 @@ class UserPromotionService
             'dni' => $user->dni,
             'reason' => $reason,
         ]);
+    }
+
+    /**
+     * ⚠️ TEMPORAL: Asigna automáticamente el estudiante al profesor predeterminado
+     * TODO: Remover cuando se implemente asignación manual por admin
+     * 
+     * @param User $student Usuario estudiante recién promovido
+     */
+    private function assignToDefaultProfessor(User $student): void
+    {
+        try {
+            // Buscar profesor por DNI 22222222
+            $professor = User::where('dni', '22222222')
+                ->where('is_professor', true)
+                ->first();
+
+            if (!$professor) {
+                Log::warning('Profesor predeterminado no encontrado para asignación automática', [
+                    'student_dni' => $student->dni,
+                    'professor_dni' => '22222222',
+                ]);
+                return;
+            }
+
+            // Verificar si ya existe la asignación
+            $existingAssignment = \App\Models\Gym\ProfessorStudentAssignment::where('professor_id', $professor->id)
+                ->where('student_id', $student->id)
+                ->first();
+
+            if ($existingAssignment) {
+                Log::info('Asignación profesor-estudiante ya existe', [
+                    'student_dni' => $student->dni,
+                    'professor_dni' => $professor->dni,
+                ]);
+                return;
+            }
+
+            // Crear asignación
+            \App\Models\Gym\ProfessorStudentAssignment::create([
+                'professor_id' => $professor->id,
+                'student_id' => $student->id,
+                'assigned_by' => $professor->id, // Auto-asignado por el sistema
+                'status' => 'active',
+                'notes' => '⚠️ ASIGNACIÓN AUTOMÁTICA TEMPORAL - Generada por sistema durante promoción de usuario',
+            ]);
+
+            Log::info('Usuario asignado automáticamente al profesor predeterminado', [
+                'student_id' => $student->id,
+                'student_dni' => $student->dni,
+                'professor_id' => $professor->id,
+                'professor_dni' => $professor->dni,
+            ]);
+
+            // Log de auditoría
+            $this->auditService->log(
+                action: 'auto_assign_student_to_professor',
+                resourceType: 'professor_student_assignment',
+                resourceId: $student->id,
+                details: [
+                    'student_id' => $student->id,
+                    'professor_id' => $professor->id,
+                    'automatic' => true,
+                    'temporary_feature' => true,
+                ],
+                severity: 'low',
+                category: 'gym_management'
+            );
+
+        } catch (\Exception $e) {
+            Log::error('Error en asignación automática de profesor', [
+                'student_dni' => $student->dni,
+                'error' => $e->getMessage(),
+            ]);
+            // No lanzar excepción para no bloquear la promoción
+        }
     }
 }
