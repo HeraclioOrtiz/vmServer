@@ -30,6 +30,7 @@ class UserResource extends JsonResource
             
             // Campos específicos de usuarios API (solo si es tipo API)
             'socio_id' => $this->when($this->user_type->value === 'api', $this->socio_id),
+            'socio_n' => $this->when($this->user_type->value === 'api', $this->socio_n),
             'nombre' => $this->when($this->user_type->value === 'api', $this->nombre),
             'apellido' => $this->when($this->user_type->value === 'api', $this->apellido),
             'barcode' => $this->when($this->user_type->value === 'api', $this->barcode),
