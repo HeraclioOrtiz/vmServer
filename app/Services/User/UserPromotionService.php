@@ -311,6 +311,7 @@ class UserPromotionService
                 'professor_id' => $professor->id,
                 'student_id' => $student->id,
                 'assigned_by' => $professor->id, // Auto-asignado por el sistema
+                'start_date' => now()->toDateString(),
                 'status' => 'active',
                 'notes' => '⚠️ ASIGNACIÓN AUTOMÁTICA TEMPORAL - Generada por sistema durante promoción de usuario',
             ]);
