@@ -137,6 +137,42 @@ class AssignmentController extends Controller
     }
 
     /**
+     * Desasignar/Eliminar plantilla de estudiante
+     */
+    public function unassignTemplate($assignmentId): JsonResponse
+    {
+        try {
+            $assignment = \App\Models\Gym\TemplateAssignment::findOrFail($assignmentId);
+
+            // Verificar permisos
+            if ($assignment->professorStudentAssignment->professor_id !== auth()->id()) {
+                return response()->json([
+                    'message' => 'No tienes permisos para eliminar esta asignación'
+                ], 403);
+            }
+
+            // Guardar info para respuesta
+            $studentName = $assignment->professorStudentAssignment->student->name;
+            $templateTitle = $assignment->dailyTemplate->title;
+
+            // Eliminar asignación (cascade eliminará progreso automáticamente)
+            $assignment->delete();
+
+            return response()->json([
+                'message' => "Plantilla '{$templateTitle}' desasignada exitosamente de {$studentName}",
+                'student_name' => $studentName,
+                'template_title' => $templateTitle
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al desasignar plantilla',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Agregar feedback a una sesión completada
      */
     public function addFeedback(Request $request, $progressId): JsonResponse

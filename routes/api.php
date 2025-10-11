@@ -91,6 +91,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('assign-template', [ProfessorAssignmentController::class, 'assignTemplate']);
         Route::get('assignments/{assignment}', [ProfessorAssignmentController::class, 'show']);
         Route::put('assignments/{assignment}', [ProfessorAssignmentController::class, 'updateAssignment']);
+        Route::delete('assignments/{assignment}', [ProfessorAssignmentController::class, 'unassignTemplate']);
         
         // Progreso y feedback
         Route::get('students/{student}/progress', [ProfessorAssignmentController::class, 'studentProgress']);

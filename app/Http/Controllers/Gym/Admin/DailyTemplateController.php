@@ -109,6 +109,9 @@ class DailyTemplateController extends Controller
             'exercises.*.sets.*.set_number' => 'nullable|integer|min:1',
             'exercises.*.sets.*.reps_min' => 'nullable|integer|min:1',
             'exercises.*.sets.*.reps_max' => 'nullable|integer|min:1',
+            'exercises.*.sets.*.weight_min' => 'nullable|numeric|min:0|max:1000',
+            'exercises.*.sets.*.weight_max' => 'nullable|numeric|min:0|max:1000',
+            'exercises.*.sets.*.weight_target' => 'nullable|numeric|min:0|max:1000',
             'exercises.*.sets.*.rest_seconds' => 'nullable|integer|min:0',
             'exercises.*.sets.*.rpe_target' => 'nullable|numeric|min:0|max:10',
             'exercises.*.sets.*.notes' => 'nullable|string',
@@ -154,6 +157,19 @@ class DailyTemplateController extends Controller
             'tags' => 'array',
             'tags.*' => 'string',
             'exercises' => 'array', // si viene, reemplaza ejercicios completos
+            'exercises.*.exercise_id' => 'nullable|integer|exists:gym_exercises,id',
+            'exercises.*.order' => 'nullable|integer|min:1',
+            'exercises.*.notes' => 'nullable|string',
+            'exercises.*.sets' => 'array',
+            'exercises.*.sets.*.set_number' => 'nullable|integer|min:1',
+            'exercises.*.sets.*.reps_min' => 'nullable|integer|min:1',
+            'exercises.*.sets.*.reps_max' => 'nullable|integer|min:1',
+            'exercises.*.sets.*.weight_min' => 'nullable|numeric|min:0|max:1000',
+            'exercises.*.sets.*.weight_max' => 'nullable|numeric|min:0|max:1000',
+            'exercises.*.sets.*.weight_target' => 'nullable|numeric|min:0|max:1000',
+            'exercises.*.sets.*.rest_seconds' => 'nullable|integer|min:0',
+            'exercises.*.sets.*.rpe_target' => 'nullable|numeric|min:0|max:10',
+            'exercises.*.sets.*.notes' => 'nullable|string',
         ]);
 
         return DB::transaction(function () use ($data, $dailyTemplate) {

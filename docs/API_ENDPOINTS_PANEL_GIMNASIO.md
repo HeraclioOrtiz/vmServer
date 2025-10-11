@@ -139,23 +139,12 @@ DELETE /admin/gym/exercises/{id}/force
 ### **8. Duplicar Ejercicio**
 ```
 POST /admin/gym/exercises/{id}/duplicate
-```
-
----
-
-## 📋 **PLANTILLAS DIARIAS**
-
-### **1. Listar Plantillas**
-```
-GET /admin/gym/daily-templates
-```
-
-**Query Parameters:**
-```typescript
 {
   search?: string;              // Búsqueda por título
   q?: string;                   // Alias de search
   difficulty?: string;
+  start_date?: string;            // Fecha de inicio (formato: 'YYYY-MM-DD')
+  end_date?: string;              // Fecha de fin (formato: 'YYYY-MM-DD')
   level?: string;               // Alias de difficulty
   primary_goal?: string;
   goal?: string;                // Alias de primary_goal
@@ -303,6 +292,119 @@ DELETE /admin/gym/sets/{id}
 {
   message: "Set eliminado correctamente";
 }
+```
+
+---
+
+## 👨‍🏫 **ASIGNACIONES DE PLANTILLAS (PROFESOR)**
+
+### **1. Asignar Plantilla a Estudiante**
+```
+POST /professor/assign-template
+```
+
+**Body:**
+```typescript
+{
+  professor_student_assignment_id: number;  // ID de la asignación profesor-estudiante
+  daily_template_id: number;                // ID de la plantilla a asignar
+  start_date: string;                       // Fecha de inicio (YYYY-MM-DD)
+  end_date?: string;                        // Fecha de fin opcional (YYYY-MM-DD)
+  frequency: number[];                      // Días de la semana [0-6] (0=Domingo, 6=Sábado)
+  professor_notes?: string;                 // Notas del profesor (max 1000 chars)
+}
+```
+
+**Ejemplo:**
+```json
+{
+  "professor_student_assignment_id": 1,
+  "daily_template_id": 5,
+  "start_date": "2025-10-15",
+  "end_date": "2025-11-15",
+  "frequency": [1, 3, 5],  // Lunes, Miércoles, Viernes
+  "professor_notes": "Enfócate en la técnica antes que el peso"
+}
+```
+
+---
+
+### **2. Ver Detalles de Asignación**
+```
+GET /professor/assignments/{id}
+```
+
+**Respuesta:** Incluye `dailyTemplate.exercises.sets`, `professorStudentAssignment.student`, `progress[]`
+
+---
+
+### **3. Actualizar Asignación**
+```
+PUT /professor/assignments/{id}
+```
+
+**Body:**
+```typescript
+{
+  end_date?: string;                        // Extender o acortar periodo
+  frequency?: number[];                     // Cambiar días de entrenamiento
+  professor_notes?: string;                 // Actualizar notas
+  status?: 'active' | 'paused' | 'completed' | 'cancelled';
+}
+```
+
+---
+
+### **4. Desasignar/Eliminar Plantilla (NUEVO)**
+```
+DELETE /professor/assignments/{id}
+```
+
+**⚠️ IMPORTANTE:** Elimina completamente la asignación y todo su progreso (cascade).
+
+**Respuesta:**
+```typescript
+{
+  message: "Plantilla 'Upper Body Strength' desasignada exitosamente de Juan Pérez";
+  student_name: "Juan Pérez";
+  template_title: "Upper Body Strength";
+}
+```
+
+---
+
+### **5. Ver Progreso de Estudiante**
+```
+GET /professor/students/{studentId}/progress
+```
+
+---
+
+### **6. Agregar Feedback a Sesión**
+```
+POST /professor/progress/{progressId}/feedback
+```
+
+**Body:**
+```typescript
+{
+  professor_feedback: string;    // Requerido, max 1000 chars
+  overall_rating?: number;       // Opcional, 1-5
+}
+```
+
+---
+
+### **7. Sesiones de Hoy**
+```
+GET /professor/today-sessions
+```
+
+---
+
+### **8. Calendario Semanal**
+```
+GET /professor/weekly-calendar?start_date=2025-10-15
 ```
 
 ---
