@@ -264,6 +264,7 @@ class ExerciseService
 
     /**
      * Eliminación forzada de ejercicio (solo para admins)
+     * Elimina el ejercicio y TODAS las plantillas que lo usan (desasignándolas automáticamente)
      */
     public function forceDeleteExercise(Exercise $exercise, $user): array
     {
@@ -279,6 +280,14 @@ class ExerciseService
 
         return DB::transaction(function () use ($exercise, $user) {
             try {
+                // Obtener IDs de plantillas afectadas ANTES de eliminar
+                $affectedTemplateIds = $exercise->dailyTemplateExercises()
+                    ->pluck('daily_template_id')
+                    ->unique()
+                    ->toArray();
+                
+                $templatesCount = count($affectedTemplateIds);
+                
                 // Auditoría antes de eliminar
                 $this->auditService->log(
                     action: 'force_delete',
@@ -287,17 +296,17 @@ class ExerciseService
                     details: [
                         'exercise_name' => $exercise->name,
                         'reason' => 'Force delete - admin override',
-                        'dependencies_removed' => true
+                        'templates_deleted' => $templatesCount,
+                        'affected_template_ids' => $affectedTemplateIds
                     ],
                     severity: 'high',
                     category: 'gym'
                 );
 
-                // Eliminar referencias primero
-                $exercise->dailyTemplateExercises()->delete();
-                
-                // Agregar otras dependencias futuras aquí
-                // $exercise->weeklyTemplateExercises()->delete();
+                // Eliminar las plantillas completas (cascade eliminará asignaciones)
+                if ($templatesCount > 0) {
+                    \App\Models\Gym\DailyTemplate::whereIn('id', $affectedTemplateIds)->delete();
+                }
                 
                 // Luego eliminar el ejercicio
                 $exercise->delete();
@@ -307,8 +316,9 @@ class ExerciseService
 
                 return [
                     'success' => true,
-                    'message' => 'Ejercicio y todas sus referencias eliminados correctamente',
-                    'warning' => 'Esta acción eliminó plantillas que usaban este ejercicio',
+                    'message' => "Ejercicio eliminado correctamente. Se eliminaron {$templatesCount} plantilla(s) y sus asignaciones.",
+                    'warning' => $templatesCount > 0 ? "Esta acción eliminó {$templatesCount} plantilla(s) que usaban este ejercicio y las desasignó de todos los estudiantes." : null,
+                    'deleted_templates_count' => $templatesCount,
                     'status_code' => 200
                 ];
             } catch (\Exception $e) {
@@ -318,7 +328,8 @@ class ExerciseService
                     'message' => 'Error al realizar eliminación forzada',
                     'details' => [
                         'exercise_id' => $exercise->id,
-                        'exercise_name' => $exercise->name
+                        'exercise_name' => $exercise->name,
+                        'error_message' => $e->getMessage()
                     ],
                     'status_code' => 500
                 ];

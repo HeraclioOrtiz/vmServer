@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Gym\Admin\ExerciseController;
 use App\Http\Controllers\Gym\Admin\DailyTemplateController;
+use App\Http\Controllers\Gym\Admin\SetController;
 use App\Http\Controllers\Gym\Admin\WeeklyTemplateController;
 use App\Http\Controllers\Gym\Admin\WeeklyAssignmentController;
 
@@ -126,6 +127,12 @@ Route::middleware(['auth:sanctum', 'professor'])->prefix('admin/gym')->group(fun
         Route::put('/{template}', [DailyTemplateController::class, 'update'])->name('admin.gym.daily-templates.update');
         Route::delete('/{template}', [DailyTemplateController::class, 'destroy'])->name('admin.gym.daily-templates.destroy');
         Route::post('/{template}/duplicate', [DailyTemplateController::class, 'duplicate'])->name('admin.gym.daily-templates.duplicate');
+    });
+    
+    // Sets (series individuales)
+    Route::prefix('sets')->group(function () {
+        Route::put('/{set}', [SetController::class, 'update'])->name('admin.gym.sets.update');
+        Route::delete('/{set}', [SetController::class, 'destroy'])->name('admin.gym.sets.destroy');
     });
     
     // Plantillas Semanales

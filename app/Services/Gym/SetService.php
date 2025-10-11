@@ -4,11 +4,15 @@ namespace App\Services\Gym;
 
 use App\Models\Gym\DailyTemplateSet;
 use App\Models\Gym\DailyTemplateExercise;
+use App\Services\Core\AuditService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
 
 class SetService
 {
+    public function __construct(
+        private AuditService $auditService
+    ) {}
     /**
      * Crear sets para un ejercicio de plantilla
      */
@@ -62,8 +66,9 @@ class SetService
     /**
      * Actualizar un set específico
      */
-    public function updateSet(DailyTemplateSet $set, array $data): DailyTemplateSet
+    public function updateSet(DailyTemplateSet $set, array $data, $user = null): DailyTemplateSet
     {
+        $oldValues = $set->toArray();
         $validated = $this->validateSetData($data);
         
         $set->update([
@@ -78,15 +83,64 @@ class SetService
             'notes' => $validated['notes'] ?? $set->notes,
         ]);
         
+        // Auditoría
+        if ($user) {
+            $this->auditService->log(
+                action: 'update',
+                resourceType: 'daily_template_set',
+                resourceId: $set->id,
+                details: [
+                    'set_number' => $set->set_number,
+                    'template_exercise_id' => $set->daily_template_exercise_id,
+                ],
+                oldValues: $oldValues,
+                newValues: $set->fresh()->toArray(),
+                severity: 'low',
+                category: 'gym'
+            );
+        }
+        
         return $set->fresh();
     }
 
     /**
      * Eliminar un set
      */
-    public function deleteSet(DailyTemplateSet $set): bool
+    public function deleteSet(DailyTemplateSet $set, $user = null): array
     {
-        return $set->delete();
+        try {
+            // Auditoría antes de eliminar
+            if ($user) {
+                $this->auditService->log(
+                    action: 'delete',
+                    resourceType: 'daily_template_set',
+                    resourceId: $set->id,
+                    details: [
+                        'set_number' => $set->set_number,
+                        'template_exercise_id' => $set->daily_template_exercise_id,
+                        'reps' => "{$set->reps_min}-{$set->reps_max}",
+                        'rpe' => $set->rpe_target,
+                    ],
+                    severity: 'low',
+                    category: 'gym'
+                );
+            }
+            
+            $set->delete();
+            
+            return [
+                'success' => true,
+                'message' => 'Set eliminado correctamente',
+                'status_code' => 200
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'error' => 'DELETE_FAILED',
+                'message' => 'Error al eliminar el set',
+                'status_code' => 500
+            ];
+        }
     }
 
     /**
