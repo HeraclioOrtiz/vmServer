@@ -5,6 +5,7 @@ namespace App\Services\Gym;
 use App\Models\Gym\Exercise;
 use App\Services\Core\AuditService;
 use App\Services\Core\CacheService;
+use App\Utils\QueryFilterBuilder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -23,76 +24,63 @@ class ExerciseService
     {
         $query = Exercise::query();
 
-        // Filtro por búsqueda de texto
-        if (!empty($filters['search'])) {
-            $search = $filters['search'];
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhere('instructions', 'like', "%{$search}%")
-                  ->orWhereJsonContains('tags', $search);
-            });
-        }
+        // Filtro por búsqueda de texto (name, description, instructions, tags)
+        QueryFilterBuilder::applySearch(
+            $query,
+            $filters['search'] ?? null,
+            ['name', 'description', 'instructions', 'tags_json']
+        );
 
-        // Filtro por grupos musculares
-        if (!empty($filters['muscle_groups'])) {
-            $muscleGroups = is_array($filters['muscle_groups']) 
-                ? $filters['muscle_groups'] 
-                : [$filters['muscle_groups']];
-            
-            foreach ($muscleGroups as $group) {
-                $query->whereJsonContains('muscle_groups', $group);
-            }
-        }
+        // Filtro por grupos musculares (JSON array)
+        QueryFilterBuilder::applyJsonContains(
+            $query,
+            $filters['muscle_groups'] ?? null,
+            'muscle_groups'
+        );
 
-        // Filtro por músculos objetivo
-        if (!empty($filters['target_muscle_groups'])) {
-            $targetMuscleGroups = is_array($filters['target_muscle_groups']) 
-                ? $filters['target_muscle_groups'] 
-                : [$filters['target_muscle_groups']];
-            
-            foreach ($targetMuscleGroups as $group) {
-                $query->whereJsonContains('target_muscle_groups', $group);
-            }
-        }
+        // Filtro por músculos objetivo (JSON array)
+        QueryFilterBuilder::applyJsonContains(
+            $query,
+            $filters['target_muscle_groups'] ?? null,
+            'target_muscle_groups'
+        );
 
-        // Filtro por nivel de dificultad
-        if (!empty($filters['difficulty_level'])) {
-            if (is_array($filters['difficulty_level'])) {
-                $query->whereIn('difficulty_level', $filters['difficulty_level']);
-            } else {
-                $query->where('difficulty_level', $filters['difficulty_level']);
-            }
-        }
+        // Filtro por nivel de dificultad (supports single or array)
+        QueryFilterBuilder::applyWhereIn(
+            $query,
+            $filters['difficulty_level'] ?? null,
+            'difficulty_level'
+        );
 
-        // Filtro por equipamiento (ahora es string, no array)
-        if (!empty($filters['equipment'])) {
-            $query->where('equipment', 'like', "%{$filters['equipment']}%");
-        }
+        // Filtro por equipamiento (LIKE search)
+        QueryFilterBuilder::applyLike(
+            $query,
+            $filters['equipment'] ?? null,
+            'equipment'
+        );
 
-        // Filtro por patrón de movimiento
-        if (!empty($filters['movement_pattern'])) {
-            $query->where('movement_pattern', 'like', "%{$filters['movement_pattern']}%");
-        }
+        // Filtro por patrón de movimiento (LIKE search)
+        QueryFilterBuilder::applyLike(
+            $query,
+            $filters['movement_pattern'] ?? null,
+            'movement_pattern'
+        );
 
-        // Filtro por tags
-        if (!empty($filters['tags'])) {
-            $tags = is_array($filters['tags']) ? $filters['tags'] : [$filters['tags']];
-            foreach ($tags as $tag) {
-                $query->whereJsonContains('tags', $tag);
-            }
-        }
+        // Filtro por tags (JSON array)
+        QueryFilterBuilder::applyJsonContains(
+            $query,
+            $filters['tags'] ?? null,
+            'tags'
+        );
 
-        // Ordenamiento
-        $sortBy = $filters['sort_by'] ?? 'name';
-        $sortDirection = $filters['sort_direction'] ?? 'asc';
-        
-        $allowedSorts = ['name', 'difficulty_level', 'movement_pattern', 'created_at', 'updated_at'];
-        if (in_array($sortBy, $allowedSorts)) {
-            $query->orderBy($sortBy, $sortDirection);
-        } else {
-            $query->orderBy('name', 'asc');
-        }
+        // Ordenamiento dinámico
+        QueryFilterBuilder::applySorting(
+            $query,
+            $filters,
+            ['name', 'difficulty_level', 'movement_pattern', 'created_at', 'updated_at'],
+            'name',
+            'asc'
+        );
 
         return $query->paginate($perPage);
     }

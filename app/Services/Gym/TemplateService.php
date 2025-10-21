@@ -7,6 +7,7 @@ use App\Models\Gym\WeeklyTemplate;
 use App\Models\Gym\Exercise;
 use App\Services\Core\AuditService;
 use App\Services\Core\CacheService;
+use App\Utils\QueryFilterBuilder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -101,81 +102,35 @@ class TemplateService
      */
     private function applyDailyTemplateFilters($query, array $filters): void
     {
-        // Filtro por búsqueda (múltiples campos)
-        if (!empty($filters['search']) || !empty($filters['q'])) {
-            $search = $filters['search'] ?: $filters['q'];
-            $query->where(function ($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%")
-                  ->orWhereJsonContains('tags', $search);
-            });
-        }
+        // Filtro por búsqueda (title, tags) - soporte para 'search' o 'q'
+        $searchTerm = $filters['search'] ?? $filters['q'] ?? null;
+        QueryFilterBuilder::applySearch($query, $searchTerm, ['title', 'tags_json']);
 
-        // Filtros de objetivo/goal (compatibilidad con ambos nombres)
-        if (!empty($filters['primary_goal']) || !empty($filters['goal'])) {
-            $goal = $filters['primary_goal'] ?: $filters['goal'];
-            $query->where('goal', $goal);
-        }
+        // Filtro por objetivo/goal (soporte para 'primary_goal' o 'goal')
+        QueryFilterBuilder::applyWithAliases($query, $filters, ['primary_goal', 'goal'], 'goal');
 
-        // Filtros de dificultad/nivel (compatibilidad con ambos nombres)
-        if (!empty($filters['difficulty']) || !empty($filters['level'])) {
-            $level = $filters['difficulty'] ?: $filters['level'];
-            $query->where('level', $level);
-        }
+        // Filtro por dificultad/nivel (soporte para 'difficulty' o 'level')
+        QueryFilterBuilder::applyWithAliases($query, $filters, ['difficulty', 'level'], 'level');
 
-        // Filtro por grupos musculares
-        if (!empty($filters['target_muscle_groups'])) {
-            $muscleGroups = is_array($filters['target_muscle_groups']) 
-                ? $filters['target_muscle_groups'] 
-                : explode(',', $filters['target_muscle_groups']);
-            
-            foreach ($muscleGroups as $group) {
-                $group = trim($group);
-                if (!empty($group)) {
-                    $query->whereJsonContains('tags', $group);
-                }
-            }
-        }
+        // Filtro por grupos musculares (JSON array)
+        QueryFilterBuilder::applyJsonContains($query, $filters['target_muscle_groups'] ?? null, 'tags');
 
-        // Filtro por equipamiento
-        if (!empty($filters['equipment_needed'])) {
-            $equipment = is_array($filters['equipment_needed']) 
-                ? $filters['equipment_needed'] 
-                : explode(',', $filters['equipment_needed']);
-            
-            foreach ($equipment as $item) {
-                $item = trim($item);
-                if (!empty($item)) {
-                    $query->whereJsonContains('tags', $item);
-                }
-            }
-        }
+        // Filtro por equipamiento (JSON array)
+        QueryFilterBuilder::applyJsonContains($query, $filters['equipment_needed'] ?? null, 'tags');
 
-        // Filtro por tags
-        if (!empty($filters['tags'])) {
-            $tags = is_array($filters['tags']) 
-                ? $filters['tags'] 
-                : explode(',', $filters['tags']);
-            
-            foreach ($tags as $tag) {
-                $tag = trim($tag);
-                if (!empty($tag)) {
-                    $query->whereJsonContains('tags', $tag);
-                }
-            }
-        }
+        // Filtro por tags (JSON array)
+        QueryFilterBuilder::applyJsonContains($query, $filters['tags'] ?? null, 'tags');
 
-        // Filtro por preset
-        if (isset($filters['is_preset'])) {
-            $query->where('is_preset', $filters['is_preset']);
-        }
+        // Filtro por preset (boolean)
+        QueryFilterBuilder::applyBoolean($query, $filters['is_preset'] ?? null, 'is_preset');
 
-        // Filtro por duración
-        if (!empty($filters['duration_min'])) {
-            $query->where('estimated_duration_min', '>=', $filters['duration_min']);
-        }
-        if (!empty($filters['duration_max'])) {
-            $query->where('estimated_duration_min', '<=', $filters['duration_max']);
-        }
+        // Filtro por duración (range)
+        QueryFilterBuilder::applyRange(
+            $query,
+            $filters['duration_min'] ?? null,
+            $filters['duration_max'] ?? null,
+            'estimated_duration_min'
+        );
     }
 
     /**
@@ -186,26 +141,18 @@ class TemplateService
         $sortBy = $filters['sort_by'] ?? 'created_at';
         $sortDirection = $filters['sort_direction'] ?? 'desc';
 
-        // Validar campos de ordenamiento permitidos
-        $allowedSortFields = [
-            'created_at', 'updated_at', 'title', 'goal', 'level', 
-            'estimated_duration_min', 'is_preset'
-        ];
-
-        if (!in_array($sortBy, $allowedSortFields)) {
-            $sortBy = 'created_at';
-        }
-
-        if (!in_array(strtolower($sortDirection), ['asc', 'desc'])) {
-            $sortDirection = 'desc';
-        }
-
-        // Aplicar ordenamiento
+        // Orden especial por defecto: presets primero, luego por fecha
         if ($sortBy === 'created_at' && $sortDirection === 'desc') {
-            // Orden por defecto: presets primero, luego por fecha
             $query->orderByDesc('is_preset')->orderByDesc('created_at')->orderBy('title');
         } else {
-            $query->orderBy($sortBy, $sortDirection);
+            // Uso de QueryFilterBuilder para ordenamiento estándar
+            QueryFilterBuilder::applySorting(
+                $query,
+                $filters,
+                ['created_at', 'updated_at', 'title', 'goal', 'level', 'estimated_duration_min', 'is_preset'],
+                'created_at',
+                'desc'
+            );
         }
     }
 
