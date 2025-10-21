@@ -4,15 +4,16 @@ namespace App\Services\Gym;
 
 use App\Models\Gym\Exercise;
 use App\Services\Core\AuditService;
+use App\Services\Core\CacheService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class ExerciseService
 {
     public function __construct(
-        private AuditService $auditService
+        private AuditService $auditService,
+        private CacheService $cacheService
     ) {}
 
     /**
@@ -371,7 +372,7 @@ class ExerciseService
      */
     public function getExerciseStats(): array
     {
-        return Cache::remember('exercise_stats', 300, function () {
+        return $this->cacheService->rememberStats('exercise_stats', function () {
             return [
                 'total_exercises' => Exercise::count(),
                 'active_exercises' => Exercise::where('is_active', true)->count(),
@@ -396,7 +397,7 @@ class ExerciseService
      */
     public function getMostUsedExercises(int $limit = 10): Collection
     {
-        return Cache::remember("most_used_exercises_{$limit}", 600, function () use ($limit) {
+        return $this->cacheService->rememberList("most_used_exercises_{$limit}", function () use ($limit) {
             return Exercise::select('exercises.*', DB::raw('COUNT(template_exercises.id) as usage_count'))
                 ->leftJoin('template_exercises', 'exercises.id', '=', 'template_exercises.exercise_id')
                 ->where('exercises.is_active', true)
@@ -412,7 +413,7 @@ class ExerciseService
      */
     public function getFilterOptions(): array
     {
-        return Cache::remember('exercise_filter_options', 1800, function () {
+        return $this->cacheService->rememberFilters('exercise_filter_options', function () {
             $exercises = Exercise::where('is_active', true)->get();
             
             return [
@@ -438,12 +439,15 @@ class ExerciseService
      */
     private function clearExerciseCache(): void
     {
-        Cache::forget('exercise_stats');
-        Cache::forget('exercise_filter_options');
-        
-        // Limpiar cache de ejercicios más usados
+        // Build array of all cache keys to clear
+        $keys = ['exercise_stats', 'exercise_filter_options'];
+
+        // Add most used exercise keys (various possible limits)
         for ($i = 1; $i <= 20; $i++) {
-            Cache::forget("most_used_exercises_{$i}");
+            $keys[] = "most_used_exercises_{$i}";
         }
+
+        // Clear all keys at once
+        $this->cacheService->forget($keys);
     }
 }

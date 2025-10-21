@@ -6,15 +6,16 @@ use App\Models\Gym\DailyTemplate;
 use App\Models\Gym\WeeklyTemplate;
 use App\Models\Gym\Exercise;
 use App\Services\Core\AuditService;
+use App\Services\Core\CacheService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class TemplateService
 {
     public function __construct(
-        private AuditService $auditService
+        private AuditService $auditService,
+        private CacheService $cacheService
     ) {}
 
     // ==================== PLANTILLAS DIARIAS ====================
@@ -29,7 +30,7 @@ class TemplateService
         
         // Para consultas simples sin filtros específicos, usar cache
         if ($this->shouldUseCache($filters)) {
-            return Cache::remember($cacheKey, 300, function () use ($filters, $perPage, $includes) {
+            return $this->cacheService->rememberStats($cacheKey, function () use ($filters, $perPage, $includes) {
                 return $this->buildDailyTemplatesQuery($filters, $perPage, $includes);
             });
         }
@@ -455,7 +456,7 @@ class TemplateService
      */
     public function getTemplateStats(): array
     {
-        return Cache::remember('template_stats', 300, function () {
+        return $this->cacheService->rememberStats('template_stats', function () {
             return [
                 'daily_templates' => [
                     'total' => DailyTemplate::count(),
@@ -486,7 +487,7 @@ class TemplateService
      */
     public function getMostUsedDailyTemplates(int $limit = 10): Collection
     {
-        return Cache::remember("most_used_daily_templates_{$limit}", 600, function () use ($limit) {
+        return $this->cacheService->rememberList("most_used_daily_templates_{$limit}", function () use ($limit) {
             return DailyTemplate::select('daily_templates.*', DB::raw('COUNT(daily_assignments.id) as usage_count'))
                 ->leftJoin('daily_assignments', 'daily_templates.id', '=', 'daily_assignments.daily_template_id')
                 ->groupBy('daily_templates.id')
@@ -501,7 +502,7 @@ class TemplateService
      */
     public function getMostUsedWeeklyTemplates(int $limit = 10): Collection
     {
-        return Cache::remember("most_used_weekly_templates_{$limit}", 600, function () use ($limit) {
+        return $this->cacheService->rememberList("most_used_weekly_templates_{$limit}", function () use ($limit) {
             return WeeklyTemplate::select('weekly_templates.*', DB::raw('COUNT(weekly_assignments.id) as usage_count'))
                 ->leftJoin('weekly_assignments', 'weekly_templates.id', '=', 'weekly_assignments.source_id')
                 ->where('weekly_assignments.source_type', 'template')
@@ -565,33 +566,29 @@ class TemplateService
      */
     private function clearTemplateCache(): void
     {
-        Cache::forget('template_stats');
-        
-        // Limpiar cache de plantillas más usadas
+        // Build array of all cache keys to clear
+        $keys = ['template_stats'];
+
+        // Add most used template keys (various possible limits)
         for ($i = 1; $i <= 20; $i++) {
-            Cache::forget("most_used_daily_templates_{$i}");
-            Cache::forget("most_used_weekly_templates_{$i}");
+            $keys[] = "most_used_daily_templates_{$i}";
+            $keys[] = "most_used_weekly_templates_{$i}";
         }
-        
+
+        // Clear all keys at once
+        $this->cacheService->forget($keys);
+
         // Limpiar cache de consultas filtradas
         $this->clearFilteredTemplatesCache();
     }
 
     /**
-     * Limpiar cache de consultas filtradas
+     * Limpiar cache de consultas filtradas (driver-agnostic)
      */
     private function clearFilteredTemplatesCache(): void
     {
-        // Obtener todas las claves de cache que empiecen con 'templates_'
-        $cacheKeys = Cache::getRedis()->keys('*templates_*');
-        
-        if (!empty($cacheKeys)) {
-            foreach ($cacheKeys as $key) {
-                // Remover el prefijo de Redis si existe
-                $cleanKey = str_replace(config('cache.prefix') . ':', '', $key);
-                Cache::forget($cleanKey);
-            }
-        }
+        // Use driver-agnostic pattern clearing
+        $this->cacheService->clearByPattern('*templates_*');
     }
 
     /**
@@ -599,7 +596,7 @@ class TemplateService
      */
     public function getPopularDailyTemplates(int $limit = 10): Collection
     {
-        return Cache::remember("popular_daily_templates_{$limit}", 1800, function () use ($limit) {
+        return $this->cacheService->rememberFilters("popular_daily_templates_{$limit}", function () use ($limit) {
             return DailyTemplate::where('is_preset', true)
                 ->with(['exercises.exercise'])
                 ->orderByDesc('created_at')
@@ -613,7 +610,7 @@ class TemplateService
      */
     public function getRecentDailyTemplates(int $limit = 5): Collection
     {
-        return Cache::remember("recent_daily_templates_{$limit}", 600, function () use ($limit) {
+        return $this->cacheService->rememberList("recent_daily_templates_{$limit}", function () use ($limit) {
             return DailyTemplate::with(['exercises.exercise'])
                 ->orderByDesc('created_at')
                 ->limit($limit)

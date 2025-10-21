@@ -8,9 +8,15 @@ use Illuminate\Support\Facades\Log;
 
 class CacheService
 {
+    // User cache TTLs
     private const USER_TTL = 3600; // 1 hora
     private const NEGATIVE_TTL = 900; // 15 minutos
     private const CIRCUIT_BREAKER_TTL = 300; // 5 minutos
+
+    // Gym cache TTLs (centralized)
+    private const STATS_TTL = 300; // 5 minutos - Statistics
+    private const LIST_TTL = 600; // 10 minutos - List data (most used, etc)
+    private const FILTER_TTL = 1800; // 30 minutos - Filter options (rarely change)
 
     /**
      * Obtiene un usuario del cache por DNI
@@ -208,5 +214,139 @@ class CacheService
     private function getCircuitBreakerKey(): string
     {
         return 'api:circuit_breaker:open';
+    }
+
+    // ==================== GENERIC CACHE METHODS ====================
+
+    /**
+     * Remember stats data (5 min TTL)
+     *
+     * @param string $key
+     * @param callable $callback
+     * @return mixed
+     */
+    public function rememberStats(string $key, callable $callback): mixed
+    {
+        return Cache::remember($key, self::STATS_TTL, $callback);
+    }
+
+    /**
+     * Remember list data (10 min TTL)
+     *
+     * @param string $key
+     * @param callable $callback
+     * @return mixed
+     */
+    public function rememberList(string $key, callable $callback): mixed
+    {
+        return Cache::remember($key, self::LIST_TTL, $callback);
+    }
+
+    /**
+     * Remember filter options (30 min TTL)
+     *
+     * @param string $key
+     * @param callable $callback
+     * @return mixed
+     */
+    public function rememberFilters(string $key, callable $callback): mixed
+    {
+        return Cache::remember($key, self::FILTER_TTL, $callback);
+    }
+
+    /**
+     * Remember with custom TTL
+     *
+     * @param string $key
+     * @param int $ttl Seconds
+     * @param callable $callback
+     * @return mixed
+     */
+    public function remember(string $key, int $ttl, callable $callback): mixed
+    {
+        return Cache::remember($key, $ttl, $callback);
+    }
+
+    /**
+     * Forget cache key(s)
+     *
+     * @param string|array $keys
+     * @return void
+     */
+    public function forget(string|array $keys): void
+    {
+        if (is_array($keys)) {
+            foreach ($keys as $key) {
+                Cache::forget($key);
+            }
+        } else {
+            Cache::forget($keys);
+        }
+    }
+
+    /**
+     * Clear cache by pattern (driver-agnostic)
+     *
+     * @param string $pattern Example: "templates_*"
+     * @return int Number of keys cleared
+     */
+    public function clearByPattern(string $pattern): int
+    {
+        $driver = config('cache.default');
+
+        // Redis-specific implementation
+        if ($driver === 'redis') {
+            try {
+                $redis = Cache::getRedis();
+                $keys = $redis->keys($pattern);
+                $count = 0;
+
+                foreach ($keys as $key) {
+                    // Remove prefix from key
+                    $cleanKey = str_replace($redis->getOptions()->prefix->getPrefix(), '', $key);
+                    Cache::forget($cleanKey);
+                    $count++;
+                }
+
+                Log::debug('Cache cleared by pattern', [
+                    'pattern' => $pattern,
+                    'count' => $count
+                ]);
+
+                return $count;
+            } catch (\Exception $e) {
+                Log::warning('Failed to clear cache by pattern', [
+                    'pattern' => $pattern,
+                    'error' => $e->getMessage()
+                ]);
+                return 0;
+            }
+        }
+
+        // For non-Redis drivers, just flush all (less efficient but works)
+        Log::warning('clearByPattern not supported for driver, using flush', [
+            'driver' => $driver,
+            'pattern' => $pattern
+        ]);
+
+        Cache::flush();
+        return -1; // Unknown count
+    }
+
+    /**
+     * Get cache TTL constants
+     *
+     * @return array
+     */
+    public function getTTLs(): array
+    {
+        return [
+            'user' => self::USER_TTL,
+            'stats' => self::STATS_TTL,
+            'list' => self::LIST_TTL,
+            'filters' => self::FILTER_TTL,
+            'negative' => self::NEGATIVE_TTL,
+            'circuit_breaker' => self::CIRCUIT_BREAKER_TTL,
+        ];
     }
 }
