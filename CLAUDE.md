@@ -69,6 +69,10 @@ composer install
 cp .env.example .env
 php artisan key:generate
 
+# Configure gym settings (in .env)
+GYM_DEFAULT_PROFESSOR_DNI=22222222  # TEMPORAL: Auto-assign students
+GYM_AUTO_ASSIGN_STUDENTS=true       # Enable/disable auto-assignment
+
 # Database
 php artisan migrate:fresh --seed
 
@@ -251,6 +255,12 @@ Critical `.env` variables:
 - `SOCIOS_API_LOGIN` - API credentials
 - `SOCIOS_REFRESH_HOURS` - How often to sync API users (default: 24)
 - `DB_CONNECTION=mysql` - Use MySQL in production
+
+**Gym Configuration** (see `config/gym.php`):
+- `GYM_DEFAULT_PROFESSOR_DNI` - Professor DNI for auto-assignment (TEMPORAL)
+- `GYM_AUTO_ASSIGN_STUDENTS` - Enable/disable auto-assignment (false by default)
+- `GYM_MAX_EXERCISES` - Max exercises per template (default: 20)
+- `GYM_MAX_STUDENTS` - Max students per professor (default: 50)
 
 ### Production Checklist
 ```bash

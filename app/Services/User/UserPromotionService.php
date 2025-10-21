@@ -274,21 +274,40 @@ class UserPromotionService
     /**
      * ⚠️ TEMPORAL: Asigna automáticamente el estudiante al profesor predeterminado
      * TODO: Remover cuando se implemente asignación manual por admin
-     * 
+     *
      * @param User $student Usuario estudiante recién promovido
      */
     private function assignToDefaultProfessor(User $student): void
     {
         try {
-            // Buscar profesor por DNI 22222222
-            $professor = User::where('dni', '22222222')
+            // Verificar si la auto-asignación está habilitada
+            if (!config('gym.auto_assign_students', false)) {
+                Log::info('Auto-asignación de estudiantes deshabilitada', [
+                    'student_dni' => $student->dni,
+                ]);
+                return;
+            }
+
+            // Obtener DNI del profesor desde configuración
+            $professorDni = config('gym.default_professor_dni');
+
+            if (!$professorDni) {
+                Log::warning('DNI de profesor predeterminado no configurado', [
+                    'student_dni' => $student->dni,
+                    'config_key' => 'GYM_DEFAULT_PROFESSOR_DNI',
+                ]);
+                return;
+            }
+
+            // Buscar profesor por DNI configurado
+            $professor = User::where('dni', $professorDni)
                 ->where('is_professor', true)
                 ->first();
 
             if (!$professor) {
                 Log::warning('Profesor predeterminado no encontrado para asignación automática', [
                     'student_dni' => $student->dni,
-                    'professor_dni' => '22222222',
+                    'professor_dni' => $professorDni,
                 ]);
                 return;
             }
