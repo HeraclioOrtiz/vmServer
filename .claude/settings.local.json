@@ -7,7 +7,9 @@
       "Bash(git push:*)",
       "Bash(git commit:*)",
       "Bash(find:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(php artisan tinker:*)",
+      "Bash(php -l:*)"
     ],
     "deny": [],
     "ask": []

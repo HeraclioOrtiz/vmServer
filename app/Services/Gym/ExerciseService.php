@@ -6,6 +6,9 @@ use App\Models\Gym\Exercise;
 use App\Services\Core\AuditService;
 use App\Services\Core\CacheService;
 use App\Utils\QueryFilterBuilder;
+use App\Exceptions\Business\ResourceInUseException;
+use App\Exceptions\Business\InsufficientPermissionsException;
+use App\Exceptions\Database\DatabaseException;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -191,24 +194,24 @@ class ExerciseService
 
     /**
      * Eliminar un ejercicio con validación de dependencias
+     *
+     * @throws ResourceInUseException
+     * @throws DatabaseException
      */
-    public function deleteExercise(Exercise $exercise, $user): array
+    public function deleteExercise(Exercise $exercise, $user): Exercise
     {
         // Verificar dependencias antes de intentar eliminar
         $dependencies = $this->checkExerciseDependencies($exercise);
-        
+
         if (!$dependencies['can_delete']) {
-            return [
-                'success' => false,
-                'error' => 'EXERCISE_IN_USE',
-                'message' => 'No se puede eliminar el ejercicio porque está siendo usado en plantillas de entrenamiento.',
-                'details' => [
+            throw new ResourceInUseException(
+                'No se puede eliminar el ejercicio porque está siendo usado en plantillas de entrenamiento.',
+                [
                     'templates_count' => $dependencies['dependencies']['daily_templates'],
                     'exercise_id' => $exercise->id,
                     'exercise_name' => $exercise->name
-                ],
-                'status_code' => 422
-            ];
+                ]
+            );
         }
 
         return DB::transaction(function () use ($exercise, $user) {
@@ -231,22 +234,15 @@ class ExerciseService
                 // Limpiar cache
                 $this->clearExerciseCache();
 
-                return [
-                    'success' => true,
-                    'message' => 'Ejercicio eliminado correctamente',
-                    'status_code' => 200
-                ];
+                return $exercise;
             } catch (\Exception $e) {
-                return [
-                    'success' => false,
-                    'error' => 'DELETE_FAILED',
-                    'message' => 'Error al eliminar el ejercicio',
-                    'details' => [
+                throw new DatabaseException(
+                    'Error al eliminar el ejercicio',
+                    [
                         'exercise_id' => $exercise->id,
                         'exercise_name' => $exercise->name
-                    ],
-                    'status_code' => 500
-                ];
+                    ]
+                );
             }
         });
     }
@@ -254,17 +250,17 @@ class ExerciseService
     /**
      * Eliminación forzada de ejercicio (solo para admins)
      * Elimina el ejercicio y TODAS las plantillas que lo usan (desasignándolas automáticamente)
+     *
+     * @throws InsufficientPermissionsException
+     * @throws DatabaseException
      */
     public function forceDeleteExercise(Exercise $exercise, $user): array
     {
         // Verificar permisos
         if (!$user->is_admin) {
-            return [
-                'success' => false,
-                'error' => 'INSUFFICIENT_PERMISSIONS',
-                'message' => 'No tienes permisos para realizar eliminación forzada',
-                'status_code' => 403
-            ];
+            throw new InsufficientPermissionsException(
+                'No tienes permisos para realizar eliminación forzada'
+            );
         }
 
         return DB::transaction(function () use ($exercise, $user) {
@@ -274,9 +270,9 @@ class ExerciseService
                     ->pluck('daily_template_id')
                     ->unique()
                     ->toArray();
-                
+
                 $templatesCount = count($affectedTemplateIds);
-                
+
                 // Auditoría antes de eliminar
                 $this->auditService->log(
                     action: 'force_delete',
@@ -296,7 +292,7 @@ class ExerciseService
                 if ($templatesCount > 0) {
                     \App\Models\Gym\DailyTemplate::whereIn('id', $affectedTemplateIds)->delete();
                 }
-                
+
                 // Luego eliminar el ejercicio
                 $exercise->delete();
 
@@ -308,20 +304,16 @@ class ExerciseService
                     'message' => "Ejercicio eliminado correctamente. Se eliminaron {$templatesCount} plantilla(s) y sus asignaciones.",
                     'warning' => $templatesCount > 0 ? "Esta acción eliminó {$templatesCount} plantilla(s) que usaban este ejercicio y las desasignó de todos los estudiantes." : null,
                     'deleted_templates_count' => $templatesCount,
-                    'status_code' => 200
                 ];
             } catch (\Exception $e) {
-                return [
-                    'success' => false,
-                    'error' => 'FORCE_DELETE_FAILED',
-                    'message' => 'Error al realizar eliminación forzada',
-                    'details' => [
+                throw new DatabaseException(
+                    'Error al realizar eliminación forzada',
+                    [
                         'exercise_id' => $exercise->id,
                         'exercise_name' => $exercise->name,
                         'error_message' => $e->getMessage()
-                    ],
-                    'status_code' => 500
-                ];
+                    ]
+                );
             }
         });
     }

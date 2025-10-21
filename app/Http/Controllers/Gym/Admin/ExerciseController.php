@@ -79,19 +79,12 @@ class ExerciseController extends Controller
 
     public function destroy(Exercise $exercise)
     {
-        $result = $this->exerciseService->deleteExercise($exercise, auth()->user());
-        
-        if (!$result['success']) {
-            return response()->json([
-                'message' => $result['message'],
-                'error' => $result['error'],
-                'details' => $result['details'] ?? null
-            ], $result['status_code']);
-        }
-        
+        $this->exerciseService->deleteExercise($exercise, auth()->user());
+
         return response()->json([
-            'message' => $result['message']
-        ], $result['status_code']);
+            'success' => true,
+            'message' => 'Ejercicio eliminado correctamente'
+        ], 200);
     }
 
     public function checkDependencies(Exercise $exercise)

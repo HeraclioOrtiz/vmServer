@@ -42,7 +42,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (Throwable $e, $request) {
             // Si es una ruta API o espera JSON, devolver respuesta JSON
             if ($request->is('api/*') || $request->expectsJson()) {
-                
+
+                // Manejar excepciones personalizadas (BaseException y subclases)
+                if ($e instanceof \App\Exceptions\BaseException) {
+                    return $e->render();
+                }
+
                 // Manejar ValidationException específicamente
                 if ($e instanceof \Illuminate\Validation\ValidationException) {
                     return response()->json([
@@ -51,7 +56,7 @@ return Application::configure(basePath: dirname(__DIR__))
                         'errors' => $e->errors()
                     ], 422);
                 }
-                
+
                 // Manejar errores de autenticación
                 if ($e instanceof \Illuminate\Auth\AuthenticationException) {
                     return response()->json([
@@ -59,7 +64,7 @@ return Application::configure(basePath: dirname(__DIR__))
                         'message' => 'No autenticado'
                     ], 401);
                 }
-                
+
                 // Manejar errores de autorización
                 if ($e instanceof \Illuminate\Auth\Access\AuthorizationException) {
                     return response()->json([
@@ -67,7 +72,7 @@ return Application::configure(basePath: dirname(__DIR__))
                         'message' => 'No autorizado'
                     ], 403);
                 }
-                
+
                 // Manejar errores 404
                 if ($e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
                     return response()->json([
@@ -75,7 +80,7 @@ return Application::configure(basePath: dirname(__DIR__))
                         'message' => 'Endpoint no encontrado'
                     ], 404);
                 }
-                
+
                 // Manejar errores 405 (Method Not Allowed)
                 if ($e instanceof \Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException) {
                     return response()->json([
@@ -83,10 +88,10 @@ return Application::configure(basePath: dirname(__DIR__))
                         'message' => 'Método no permitido'
                     ], 405);
                 }
-                
+
                 // Para otros errores, devolver error genérico
                 $statusCode = method_exists($e, 'getStatusCode') ? $e->getStatusCode() : 500;
-                
+
                 return response()->json([
                     'success' => false,
                     'message' => config('app.debug') ? $e->getMessage() : 'Error interno del servidor',
@@ -97,7 +102,7 @@ return Application::configure(basePath: dirname(__DIR__))
                     ] : null
                 ], $statusCode);
             }
-            
+
             // Para rutas web, usar el manejo por defecto
             return null;
         });

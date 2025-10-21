@@ -4,6 +4,8 @@ namespace App\Services\Admin;
 
 use App\Models\User;
 use App\Services\Core\AuditService;
+use App\Exceptions\Business\InsufficientPermissionsException;
+use App\Exceptions\Business\InvalidOperationException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Hash;
@@ -127,12 +129,14 @@ class UserManagementService
 
     /**
      * Crea un nuevo usuario
+     *
+     * @throws InsufficientPermissionsException
      */
     public function createUser(array $data, User $creator): User
     {
         // Validar permisos para crear admin
         if (($data['is_admin'] ?? false) && !$creator->isSuperAdmin()) {
-            throw new \Exception('Only super admins can create admin users.');
+            throw new InsufficientPermissionsException('Only super admins can create admin users.');
         }
 
         $data['password'] = Hash::make($data['password']);
@@ -152,19 +156,22 @@ class UserManagementService
 
     /**
      * Actualiza un usuario
+     *
+     * @throws InsufficientPermissionsException
+     * @throws InvalidOperationException
      */
     public function updateUser(User $user, array $data, User $updater): User
     {
         // Validar permisos para modificar admin
         if (isset($data['is_admin']) && $data['is_admin'] !== $user->is_admin) {
             if (!$updater->isSuperAdmin()) {
-                throw new \Exception('Only super admins can modify admin roles.');
+                throw new InsufficientPermissionsException('Only super admins can modify admin roles.');
             }
         }
 
         // No permitir que un admin se quite sus propios permisos
         if ($user->id === $updater->id && isset($data['is_admin']) && !$data['is_admin']) {
-            throw new \Exception('You cannot remove your own admin privileges.');
+            throw new InvalidOperationException('You cannot remove your own admin privileges.');
         }
 
         $oldValues = $user->only(array_keys($data));
@@ -192,11 +199,11 @@ class UserManagementService
     public function suspendUser(User $user, User $suspender, ?string $reason = null): User
     {
         if ($user->id === $suspender->id) {
-            throw new \Exception('You cannot suspend your own account.');
+            throw new InvalidOperationException('You cannot suspend your own account.');
         }
 
         if ($user->isSuperAdmin()) {
-            throw new \Exception('Super admin accounts cannot be suspended.');
+            throw new InvalidOperationException('Super admin accounts cannot be suspended.');
         }
 
         $user->suspend($reason);
@@ -226,7 +233,7 @@ class UserManagementService
     public function assignAdminRole(User $user, array $permissions, User $assigner): User
     {
         if (!$assigner->isSuperAdmin()) {
-            throw new \Exception('Only super admins can assign admin roles.');
+            throw new InsufficientPermissionsException('Only super admins can assign admin roles.');
         }
 
         $user->assignAdminRole($permissions);
@@ -243,11 +250,11 @@ class UserManagementService
     public function removeAdminRole(User $user, User $remover): User
     {
         if (!$remover->isSuperAdmin()) {
-            throw new \Exception('Only super admins can remove admin roles.');
+            throw new InsufficientPermissionsException('Only super admins can remove admin roles.');
         }
 
         if ($user->id === $remover->id) {
-            throw new \Exception('You cannot remove your own admin role.');
+            throw new InvalidOperationException('You cannot remove your own admin role.');
         }
 
         $user->removeAdminRole();
