@@ -22,30 +22,77 @@ Esta auditoría examinó ~6,516 líneas de código en servicios y ~3,595 líneas
 
 ## 🚨 Hallazgos CRÍTICOS
 
-### 1. UserPromotionService - Lógica Hardcodeada
+### 1. UserPromotionService - Lógica Hardcodeada (TEMPORAL)
 **Archivo:** `app/Services/User/UserPromotionService.php:280-348`
-**Severidad:** 🔴 CRÍTICO
+**Severidad:** 🟡 ALTA (Temporal hasta implementar UI de asignación)
 
 ```php
-// ⚠️ DNI hardcodeado en lógica de negocio
+// ⚠️ DNI hardcodeado TEMPORALMENTE para auto-asignación
 private function assignToDefaultProfessor(User $student): void
 {
-    $professor = User::where('dni', '22222222')  // HARDCODED!
+    $professor = User::where('dni', '22222222')  // TEMPORAL
         ->where('is_professor', true)
         ->first();
     // ...
 }
 ```
 
+**Contexto:**
+- DNI '22222222' usado temporalmente para auto-asignar todos los estudiantes nuevos
+- Necesario porque el sistema de asignación profesor-estudiante aún no está implementado en el UI
+- Marcado como "TEMPORAL" correctamente en el código
+
 **Problema:**
-- DNI mágico '22222222' embebido en código
-- Marcado como "TEMPORAL" pero en producción
-- Viola principio de configuración externa
+- DNI mágico embebido en código (viola principio de configuración)
+- No es escalable ni mantenible a largo plazo
+- Dificulta testing y deployment en diferentes ambientes
+
+**Solución Recomendada (Sin implementar UI todavía):**
+
+**Opción A - Mover a Configuración (RECOMENDADO):**
+```php
+// config/gym.php
+return [
+    'default_professor_dni' => env('DEFAULT_PROFESSOR_DNI', null),
+    'auto_assign_students' => env('AUTO_ASSIGN_STUDENTS', false),
+];
+
+// UserPromotionService.php
+private function assignToDefaultProfessor(User $student): void
+{
+    $defaultDni = config('gym.default_professor_dni');
+
+    if (!$defaultDni) {
+        Log::warning('Default professor DNI not configured, skipping auto-assignment');
+        return; // No asignar si no está configurado
+    }
+
+    $professor = User::where('dni', $defaultDni)
+        ->where('is_professor', true)
+        ->first();
+    // ...
+}
+
+// .env
+DEFAULT_PROFESSOR_DNI=22222222
+AUTO_ASSIGN_STUDENTS=true
+```
+
+**Beneficios:**
+- Fácil cambiar DNI sin tocar código
+- Puede deshabilitarse en ambientes de prueba
+- Mejor para deployment en diferentes ambientes
+- Más fácil de testear
+
+**Opción B - Sistema de Asignación Manual (Implementar ahora):**
+- Crear `ProfessorAssignmentService`
+- Implementar endpoints básicos de asignación
+- UI simple en panel admin (puede ser una página básica)
 
 **Acción Requerida:**
-- [ ] Mover a configuración (`.env` o `config/gym.php`)
-- [ ] O eliminar feature temporal por completo
-- [ ] Crear `ProfessorAssignmentService` separado
+- [ ] **Corto plazo**: Mover DNI a `.env` (30 minutos de trabajo)
+- [ ] **Mediano plazo**: Implementar sistema de asignación completo
+- [ ] **Mientras tanto**: Agregar feature flag para habilitar/deshabilitar auto-asignación
 
 ---
 
@@ -353,20 +400,26 @@ Cache::remember($key, 300, ...);  // Usar const TEMPLATE_CACHE_TTL
 
 **Esfuerzo estimado:** 2-3 días
 
-- [ ] **1.1** Remover/Configurar profesor hardcodeado (DNI '22222222')
+- [ ] **1.1** Configurar profesor por defecto vía .env (30 min)
   - Ubicación: `UserPromotionService.php:280-348`
-  - Mover a configuración o eliminar feature temporal
+  - Crear `config/gym.php` con `default_professor_dni`
+  - Agregar `DEFAULT_PROFESSOR_DNI` y `AUTO_ASSIGN_STUDENTS` a `.env`
+  - Actualizar servicio para leer de configuración
+  - **Nota**: Feature temporal hasta implementar UI de asignación
 
-- [ ] **1.2** Crear `QueryFilterBuilder` utility
+- [ ] **1.2** Crear `QueryFilterBuilder` utility (4-6 horas)
   - Eliminar duplicación en 4+ servicios
   - Centralizar lógica de filtrado
+  - Crear métodos: `applySearch()`, `applyDateRange()`, `applyInFilter()`
 
-- [ ] **1.3** Estandarizar manejo de errores
+- [ ] **1.3** Estandarizar manejo de errores (3-4 horas)
   - Decidir: Excepciones personalizadas vs Result objects
   - Crear clases base
+  - Documentar patrón elegido
 
-- [ ] **1.4** Mover lógica de WeeklyTemplateController a servicio
+- [ ] **1.4** Mover lógica de WeeklyTemplateController a servicio (2-3 horas)
   - Implementar thin controller pattern
+  - Mover transaction logic a service
 
 ### FASE 2: ALTA PRIORIDAD (Hacer en 2 Semanas)
 
@@ -472,11 +525,13 @@ Cache::remember($key, 300, ...);  // Usar const TEMPLATE_CACHE_TTL
 **Esfuerzo total estimado:** 4-6 semanas para limpieza completa
 
 **Recomendación:** Comenzar con FASE 1 (crítico) de inmediato, especialmente:
-- Remover lógica hardcodeada del profesor
-- Crear QueryFilterBuilder para eliminar duplicación
-- Estandarizar manejo de errores
+- Mover DNI del profesor a configuración (.env) - Solo 30 minutos
+- Crear QueryFilterBuilder para eliminar duplicación - Mayor impacto
+- Estandarizar manejo de errores - Mejora consistencia
 
 Estos cambios tendrán el **mayor impacto positivo** con el **menor esfuerzo**.
+
+**Nota sobre asignación de profesores:** El DNI hardcodeado es temporal y está bien documentado. La prioridad es moverlo a configuración para facilitar deployment y testing, mientras se implementa el sistema de asignación completo en el futuro.
 
 ---
 
