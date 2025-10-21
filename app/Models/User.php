@@ -612,4 +612,15 @@ class User extends Authenticatable
             'student_id'     // Local key en professor_student_assignments
         )->where('professor_student_assignments.status', 'active');
     }
+
+    /**
+     * Send the password reset notification with custom template.
+     *
+     * @param string $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new \App\Notifications\ResetPasswordNotification($token, $this));
+    }
 }
