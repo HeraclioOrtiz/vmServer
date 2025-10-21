@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Gym\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Gym\StoreExerciseRequest;
+use App\Http\Requests\Gym\UpdateExerciseRequest;
 use App\Models\Gym\Exercise;
 use App\Services\Gym\ExerciseService;
 use Illuminate\Http\Request;
@@ -29,25 +31,9 @@ class ExerciseController extends Controller
         return response()->json($exercises);
     }
 
-    public function store(Request $request)
+    public function store(StoreExerciseRequest $request)
     {
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'muscle_groups' => 'nullable|array',
-            'muscle_groups.*' => 'string',
-            'target_muscle_groups' => 'nullable|array',
-            'target_muscle_groups.*' => 'string',
-            'movement_pattern' => 'nullable|string|max:255',
-            'equipment' => 'nullable|string|max:255',
-            'difficulty_level' => 'nullable|string|in:beginner,intermediate,advanced',
-            'exercise_type' => 'nullable|string', // Campo ignorado por ahora
-            'tags' => 'nullable|array',
-            'tags.*' => 'string',
-            'instructions' => 'nullable|string',
-        ]);
-
-        $exercise = $this->exerciseService->createExercise($data, $request->user());
+        $exercise = $this->exerciseService->createExercise($request->validated(), $request->user());
         return response()->json($exercise, 201);
     }
 
@@ -56,24 +42,9 @@ class ExerciseController extends Controller
         return response()->json($exercise);
     }
 
-    public function update(Request $request, Exercise $exercise)
+    public function update(UpdateExerciseRequest $request, Exercise $exercise)
     {
-        $data = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'description' => 'nullable|string',
-            'muscle_groups' => 'nullable|array',
-            'muscle_groups.*' => 'string',
-            'target_muscle_groups' => 'nullable|array',
-            'target_muscle_groups.*' => 'string',
-            'movement_pattern' => 'nullable|string|max:255',
-            'equipment' => 'nullable|string|max:255',
-            'difficulty_level' => 'nullable|string|in:beginner,intermediate,advanced',
-            'tags' => 'nullable|array',
-            'tags.*' => 'string',
-            'instructions' => 'nullable|string',
-        ]);
-
-        $exercise = $this->exerciseService->updateExercise($exercise, $data, $request->user());
+        $exercise = $this->exerciseService->updateExercise($exercise, $request->validated(), $request->user());
         return response()->json($exercise);
     }
 

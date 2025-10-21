@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Gym\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Gym\StoreWeeklyTemplateRequest;
+use App\Http\Requests\Gym\UpdateWeeklyTemplateRequest;
 use App\Models\Gym\WeeklyTemplate;
 use App\Models\Gym\WeeklyTemplateDay;
 use Illuminate\Http\Request;
@@ -36,19 +38,9 @@ class WeeklyTemplateController extends Controller
         return response()->json($weeklyTemplate);
     }
 
-    public function store(Request $request)
+    public function store(StoreWeeklyTemplateRequest $request)
     {
-        $data = $request->validate([
-            'title' => 'required|string|max:255',
-            'goal' => 'nullable|string|max:50',
-            'split' => 'nullable|string|max:50',
-            'days_per_week' => 'nullable|integer|min:1|max:7',
-            'tags' => 'array',
-            'tags.*' => 'string',
-            'days' => 'array',
-            'days.*.weekday' => 'required|integer|min:1|max:7',
-            'days.*.daily_template_id' => 'nullable|integer|exists:gym_daily_templates,id',
-        ]);
+        $data = $request->validated();
 
         return DB::transaction(function () use ($data, $request) {
             $tpl = WeeklyTemplate::create([
@@ -74,19 +66,9 @@ class WeeklyTemplateController extends Controller
         });
     }
 
-    public function update(Request $request, WeeklyTemplate $weeklyTemplate)
+    public function update(UpdateWeeklyTemplateRequest $request, WeeklyTemplate $weeklyTemplate)
     {
-        $data = $request->validate([
-            'title' => 'sometimes|required|string|max:255',
-            'goal' => 'nullable|string|max:50',
-            'split' => 'nullable|string|max:50',
-            'days_per_week' => 'nullable|integer|min:1|max:7',
-            'tags' => 'array',
-            'tags.*' => 'string',
-            'days' => 'array', // si viene, reemplaza mapeo
-            'days.*.weekday' => 'required|integer|min:1|max:7',
-            'days.*.daily_template_id' => 'nullable|integer|exists:gym_daily_templates,id',
-        ]);
+        $data = $request->validated();
 
         return DB::transaction(function () use ($data, $weeklyTemplate) {
             $weeklyTemplate->update([

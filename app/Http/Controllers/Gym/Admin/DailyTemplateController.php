@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Gym\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Gym\StoreDailyTemplateRequest;
+use App\Http\Requests\Gym\UpdateDailyTemplateRequest;
 use App\Models\Gym\DailyTemplate;
 use App\Models\Gym\DailyTemplateExercise;
 use App\Models\Gym\DailyTemplateSet;
@@ -92,30 +94,9 @@ class DailyTemplateController extends Controller
         return response()->json($dailyTemplate);
     }
 
-    public function store(Request $request)
+    public function store(StoreDailyTemplateRequest $request)
     {
-        $data = $request->validate([
-            'title' => 'required|string|max:255',
-            'goal' => 'nullable|string|max:50',
-            'estimated_duration_min' => 'nullable|integer|min:0|max:600',
-            'level' => 'nullable|string|max:50',
-            'tags' => 'array',
-            'tags.*' => 'string',
-            'exercises' => 'array',
-            'exercises.*.exercise_id' => 'nullable|integer|exists:gym_exercises,id',
-            'exercises.*.order' => 'nullable|integer|min:1',
-            'exercises.*.notes' => 'nullable|string',
-            'exercises.*.sets' => 'array',
-            'exercises.*.sets.*.set_number' => 'nullable|integer|min:1',
-            'exercises.*.sets.*.reps_min' => 'nullable|integer|min:1',
-            'exercises.*.sets.*.reps_max' => 'nullable|integer|min:1',
-            'exercises.*.sets.*.weight_min' => 'nullable|numeric|min:0|max:1000',
-            'exercises.*.sets.*.weight_max' => 'nullable|numeric|min:0|max:1000',
-            'exercises.*.sets.*.weight_target' => 'nullable|numeric|min:0|max:1000',
-            'exercises.*.sets.*.rest_seconds' => 'nullable|integer|min:0',
-            'exercises.*.sets.*.rpe_target' => 'nullable|numeric|min:0|max:10',
-            'exercises.*.sets.*.notes' => 'nullable|string',
-        ]);
+        $data = $request->validated();
 
         return DB::transaction(function () use ($data, $request) {
             $tpl = DailyTemplate::create([
@@ -147,30 +128,9 @@ class DailyTemplateController extends Controller
         });
     }
 
-    public function update(Request $request, DailyTemplate $dailyTemplate)
+    public function update(UpdateDailyTemplateRequest $request, DailyTemplate $dailyTemplate)
     {
-        $data = $request->validate([
-            'title' => 'sometimes|required|string|max:255',
-            'goal' => 'nullable|string|max:50',
-            'estimated_duration_min' => 'nullable|integer|min:0|max:600',
-            'level' => 'nullable|string|max:50',
-            'tags' => 'array',
-            'tags.*' => 'string',
-            'exercises' => 'array', // si viene, reemplaza ejercicios completos
-            'exercises.*.exercise_id' => 'nullable|integer|exists:gym_exercises,id',
-            'exercises.*.order' => 'nullable|integer|min:1',
-            'exercises.*.notes' => 'nullable|string',
-            'exercises.*.sets' => 'array',
-            'exercises.*.sets.*.set_number' => 'nullable|integer|min:1',
-            'exercises.*.sets.*.reps_min' => 'nullable|integer|min:1',
-            'exercises.*.sets.*.reps_max' => 'nullable|integer|min:1',
-            'exercises.*.sets.*.weight_min' => 'nullable|numeric|min:0|max:1000',
-            'exercises.*.sets.*.weight_max' => 'nullable|numeric|min:0|max:1000',
-            'exercises.*.sets.*.weight_target' => 'nullable|numeric|min:0|max:1000',
-            'exercises.*.sets.*.rest_seconds' => 'nullable|integer|min:0',
-            'exercises.*.sets.*.rpe_target' => 'nullable|numeric|min:0|max:10',
-            'exercises.*.sets.*.notes' => 'nullable|string',
-        ]);
+        $data = $request->validated();
 
         return DB::transaction(function () use ($data, $dailyTemplate) {
             $dailyTemplate->update([
