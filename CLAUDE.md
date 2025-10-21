@@ -275,6 +275,94 @@ chmod -R 775 storage bootstrap/cache
 
 See `docs/deployment/PRODUCTION-DEPLOYMENT-GUIDE.md` for full deployment guide.
 
+## Agent Strategy for Cost Optimization
+
+This project uses a **multi-model agent strategy** to optimize development costs:
+
+### Model Selection Guide
+
+**🤖 Haiku (Most Economical)** - For simple, automated tasks:
+- Git operations (`add`, `commit`, `push`, `status`, `log`)
+- Execute existing tests (`php artisan test`)
+- Read/search files (`grep`, `glob`)
+- Cache clearing, migrations
+- **Cost:** ~$0.25/1M input, ~$1.25/1M output
+
+**🧠 Sonnet (Intermediate)** - For standard implementation:
+- Implement services following existing patterns
+- Create controllers, form requests, migrations
+- Write tests (unit + integration)
+- Standard refactoring (extract methods, move config)
+- Bug fixes
+- **Cost:** ~$3/1M input, ~$15/1M output
+
+**🔮 Opus (Most Expensive)** - For complex analysis only:
+- Design new systems and architecture
+- Code audits and deep analysis
+- Split large services (>400 lines)
+- Security audits
+- Performance optimization
+- Architectural decisions
+- **Cost:** ~$15/1M input, ~$75/1M output
+
+### Example Workflows
+
+**Implementing a Feature (e.g., Password Recovery):**
+```
+1. Opus (30 min): Design complete system → ~$3
+2. Sonnet (3h): Implement backend (service, controller, requests) → ~$6
+3. Sonnet (2h): Write tests → ~$4
+4. Haiku (5 min): Run tests + commit → ~$0.10
+Total: ~$13 (vs ~$75 all Opus) - 83% savings
+```
+
+**Refactoring (e.g., Extract Utility):**
+```
+1. Opus (20 min): Analyze patterns → ~$1.50
+2. Sonnet (2h): Implement + refactor services → ~$4
+3. Sonnet (1h): Write tests → ~$2
+4. Haiku (5 min): Execute tests + commit → ~$0.10
+Total: ~$7.60 (vs ~$40 all Opus) - 81% savings
+```
+
+### Quick Decision Matrix
+
+| Task Type | Model |
+|-----------|-------|
+| Git operations | Haiku |
+| Run tests | Haiku |
+| Read/search files | Haiku |
+| Implement CRUD | Sonnet |
+| Write tests | Sonnet |
+| Refactor (simple) | Sonnet |
+| Bug fixes | Sonnet |
+| Design system | Opus |
+| Code audit | Opus |
+| Split large service | Opus |
+| Architecture decisions | Opus |
+
+**📖 Full guides:**
+- `docs/development/AGENT-STRATEGY.md` - Complete strategy and workflows
+- `docs/development/AGENTS-REFERENCE.md` - Quick reference and examples
+
+**Expected ROI:** 70-80% cost reduction with same or better quality
+
+### ✅ Agentes Disponibles (`.claude/agents/`)
+
+7 agentes personalizados listos para usar:
+
+1. **git-automation** (Haiku 3 - $0.25/$1.25) - Git ops, commits, push
+2. **test-runner** (Haiku 3.5 - $0.80/$4.00) - Run tests, linters
+3. **code-searcher** (Haiku 4.5 - $1.00/$5.00) - Find files, search code
+4. **bug-fixer** (Sonnet 3.7 - $3.00/$15.00) - Quick bug fixes
+5. **implementer** (Sonnet 4 - $3.00/$15.00) - Standard implementation
+6. **refactorer** (Sonnet 4.5 - $3.00/$15.00) - Code refactoring
+7. **architect** (Opus 4.1 - $15.00/$75.00) - Design & architecture
+
+**Usage:** `@agent-name your request` or use `/agents` command
+
+---
+
 ## Documentation
 
 Comprehensive documentation is in the `docs/` directory:
@@ -283,6 +371,8 @@ Comprehensive documentation is in the `docs/` directory:
 - `docs/gym/GYM-DOCUMENTATION.md` - Gym system documentation
 - `docs/testing/TESTING-GUIDE-MAIN.md` - Testing guidelines
 - `docs/admin-panel/` - Admin panel implementation guides
+- `docs/development/AGENT-STRATEGY.md` - **Multi-model agent strategy for cost optimization**
+- `docs/auth/PASSWORD-RECOVERY.md` - Password recovery system specification
 
 ## Troubleshooting
 

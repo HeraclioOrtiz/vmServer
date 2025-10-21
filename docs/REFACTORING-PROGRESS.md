@@ -21,7 +21,9 @@ Mejorar la calidad del código del servidor Villa Mitre mediante refactorizació
 | **Refactors Medios (Fase 2)** | 0% | ⏸️ Pendiente |
 | **Refactors Mayores (Fase 3)** | 0% | ⏸️ Pendiente |
 
-**Progreso Total:** 16% (2/12 tareas completadas)
+**Progreso Total:** 15% (2/13 tareas completadas)
+
+> **Nota:** Se agregó P8 (Sistema de Recuperación de Contraseña) a la lista de refactorizaciones
 
 ---
 
@@ -204,6 +206,61 @@ Ninguna tarea actualmente en progreso.
 
 ---
 
+#### P8: Sistema de Recuperación de Contraseña (NUEVO)
+**Prioridad:** 🟡 MEDIA
+**Esfuerzo:** 10-15 horas
+**Impacto:** ⭐⭐⭐⭐ Alto
+
+**Problema:**
+- No existe sistema de recuperación de contraseña
+- Usuarios no pueden resetear credenciales olvidadas
+- Falta de funcionalidad estándar en apps modernas
+
+**Beneficio esperado:**
+- Sistema moderno de password reset vía email
+- Soporte para sistema dual (local + API users)
+- Rate limiting y seguridad robusta
+- Auto-login después de reset
+- UI/UX completa en app móvil
+- Deep linking para abrir app desde email
+
+**Archivos a crear:**
+- `app/Services/Auth/PasswordResetService.php` (lógica principal)
+- `app/Http/Controllers/Auth/PasswordResetController.php`
+- `app/Http/Requests/Auth/ForgotPasswordRequest.php`
+- `app/Http/Requests/Auth/ResetPasswordRequest.php`
+- `app/Http/Requests/Auth/ValidateResetTokenRequest.php`
+- `app/Notifications/ResetPasswordNotification.php` (email custom)
+- `tests/Unit/Services/Auth/PasswordResetServiceTest.php`
+- `tests/Feature/Auth/PasswordResetControllerTest.php`
+
+**Archivos a modificar:**
+- `routes/api.php` (4 nuevos endpoints)
+- `config/auth.php` (configuración de tokens)
+- `.env.example` (variables de email y contact info)
+
+**Documentación:**
+- ✅ `docs/auth/PASSWORD-RECOVERY.md` (especificación completa creada)
+- Incluye: arquitectura, flujo, código backend, código frontend móvil, seguridad, testing
+
+**Características:**
+- Tokens seguros con expiración (60 min)
+- Rate limiting (5 intentos/hora)
+- Restricción para usuarios API (no pueden cambiar password localmente)
+- Validación de fortaleza de contraseña
+- Revocación de tokens Sanctum al cambiar password
+- Auditoría completa de operaciones
+- Deep linking iOS + Android
+
+**Fases de implementación:**
+1. Backend service y controller (2-3h)
+2. Customización de emails (1-2h)
+3. Frontend móvil (4-6h)
+4. Testing (2-3h)
+5. Deploy (1h)
+
+---
+
 ### FASE 3: Refactorizaciones Mayores (3-4 Semanas)
 
 #### P4: Split TemplateService (MÁS IMPORTANTE)
@@ -225,6 +282,7 @@ Este es el refactor más importante pero también el más complejo.
 - Código duplicado: ~190 líneas (filtrado)
 - DNI hardcodeado: 1
 - Magic strings: ~15
+- Sistema de password recovery: ❌ No existe
 
 ### Después de Completar Fase 1
 - ✅ Archivos basura en root: 0 (-282)
@@ -232,6 +290,7 @@ Este es el refactor más importante pero también el más complejo.
 - ⏳ Servicios >300 líneas: 10 (sin cambio aún)
 - ⏳ Código duplicado: ~190 líneas (pendiente P2)
 - ⏳ Magic strings: ~14 (pendiente)
+- ⏳ Password recovery: Diseñado (pendiente implementación P8)
 
 ---
 
@@ -249,11 +308,16 @@ Este es el refactor más importante pero también el más complejo.
    - Tests unitarios
 
 ### Después (Semana 2)
-3. **P3: Estandarizar errores** (4 horas)
-4. **P5: Split ExerciseService** (2 días)
+3. **P8: Sistema de Recuperación de Contraseña** (10-15 horas)
+   - Backend service y controller
+   - Email notifications
+   - Frontend móvil (pantallas + deep linking)
+   - Testing completo
+4. **P3: Estandarizar errores** (4 horas)
+5. **P5: Split ExerciseService** (2 días)
 
 ### Semanas 3-4
-5. **P4: Split TemplateService** (3 días) - El más importante
+6. **P4: Split TemplateService** (3 días) - El más importante
 
 ---
 
@@ -285,6 +349,17 @@ Este es el refactor más importante pero también el más complejo.
   - `74add8c8` - Limpieza adicional (JSON, scripts)
   - `f354d1c5` - P1: DNI a configuración
 
+### Documentación de Nuevas Features
+
+- **P8 - Password Recovery:** `docs/auth/PASSWORD-RECOVERY.md`
+  - Especificación completa del sistema de recuperación de contraseña
+  - Arquitectura backend (services, controllers, requests, notifications)
+  - Código de ejemplo para app móvil (React Native)
+  - Configuración de deep linking (iOS + Android)
+  - Medidas de seguridad y rate limiting
+  - Tests unitarios e integración
+  - Checklist de deployment
+
 ---
 
 ## ✅ Checklist de Calidad
@@ -302,6 +377,11 @@ Cada propuesta implementada debe cumplir:
 
 ---
 
-**Última actualización:** 21 de Octubre 2025, 00:55 ART
+**Última actualización:** 21 de Octubre 2025, 01:30 ART
 **Por:** Claude Code
-**Estado:** 2/12 tareas completadas (16% progreso)
+**Estado:** 2/13 tareas completadas (15% progreso)
+
+**Cambios en esta actualización:**
+- ✅ Agregada propuesta P8: Sistema de Recuperación de Contraseña
+- ✅ Creada documentación completa en `docs/auth/PASSWORD-RECOVERY.md`
+- 📋 Añadida a Fase 2 con prioridad MEDIA y esfuerzo de 10-15 horas
