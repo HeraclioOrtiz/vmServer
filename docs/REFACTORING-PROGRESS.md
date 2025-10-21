@@ -21,7 +21,7 @@ Mejorar la calidad del código del servidor Villa Mitre mediante refactorizació
 | **Refactors Medios (Fase 2)** | 100% | ✅ Completado |
 | **Refactors Mayores (Fase 3)** | 0% | ⏸️ Pendiente |
 
-**Progreso Total:** 77% (10/13 tareas completadas)
+**Progreso Total:** 80% (11/13 tareas completadas)
 
 > **Nota:** Se agregó P8 (Sistema de Recuperación de Contraseña) a la lista de refactorizaciones
 
@@ -971,6 +971,84 @@ MAIL_FROM_NAME="Club Villa Mitre"
 
 ---
 
+### 10. P-TEMP: UserPromotionService Cleanup
+**Fecha:** 21 Oct 2025
+**Commit:** `c52a1dfc`
+**Prioridad:** 🟡 MEDIA
+**Esfuerzo estimado:** 2 horas
+**Esfuerzo real:** 1.5 horas ✓
+
+#### Problema Original
+- UserPromotionService: 368 líneas con lógica temporal mezclada
+- Auto-asignación de profesores integrada en servicio core
+- Difícil identificar código temporal vs permanente
+- Lógica de auto-assignment acoplada con promoción de usuarios
+
+#### Solución Implementada
+
+**Archivos creados:**
+- `app/Services/Gym/ProfessorAutoAssignmentService.php` (145 líneas)
+  - Marcado con `@deprecated` (feature temporal)
+  - Maneja auto-asignación a profesor por defecto
+  - Será removido cuando UI de asignación manual esté lista
+
+**Archivo refactorizado:**
+- `app/Services/User/UserPromotionService.php` (368 → 276 líneas, 25% reducción)
+
+**Extracción de lógica temporal:**
+```php
+// ANTES: Método privado de 92 líneas dentro de UserPromotionService
+private function assignToDefaultProfessor(User $student): void
+{
+    if (!config('gym.auto_assign_students', false)) return;
+
+    $professorDni = config('gym.default_professor_dni');
+    if (!$professorDni) return;
+
+    $professor = User::where('dni', $professorDni)
+        ->where('is_professor', true)
+        ->first();
+
+    if (!$professor) return;
+
+    // 50+ líneas más de lógica temporal...
+}
+
+// DESPUÉS: Delegación a servicio temporal separado
+$this->autoAssignmentService->assignStudentToDefaultProfessor($user->fresh());
+
+// NUEVO: ProfessorAutoAssignmentService (145 líneas)
+/**
+ * @deprecated Servicio temporal para auto-asignación automática.
+ * Será removido cuando se implemente UI de asignación manual.
+ */
+class ProfessorAutoAssignmentService
+{
+    public function assignStudentToDefaultProfessor(User $student): void
+    {
+        // Toda la lógica temporal aislada aquí
+        // Claramente marcada para futura eliminación
+    }
+}
+```
+
+#### Beneficios Obtenidos
+- ✅ Código temporal claramente separado y marcado con `@deprecated`
+- ✅ UserPromotionService 25% más pequeño (92 líneas eliminadas)
+- ✅ Enfoque Single Responsibility (promoción vs asignación)
+- ✅ Fácil de remover cuando UI manual esté lista
+- ✅ Mejor testabilidad (mock auto-assignment sin afectar promoción)
+- ✅ Identificación clara de código a eliminar en futuro
+- ✅ Mantiene funcionalidad existente (backward compatible)
+
+#### Impacto
+- **Mantenibilidad:** ⬆️⬆️ Muy Alta
+- **Claridad:** ⬆️⬆️⬆️ Excelente (código temporal visible)
+- **Organización:** ⬆️⬆️ Muy Alta
+- **Riesgo:** ✅ Bajo (extracción limpia)
+
+---
+
 ## 🟡 En Progreso
 
 Ninguna tarea actualmente en progreso.
@@ -1041,9 +1119,10 @@ Ninguna tarea actualmente en progreso.
 - ✅ Cache acoplado: 0 servicios (-7, 100%)
 - ✅ Password recovery: Sistema completo con email profesional
 - ✅ Manejo de errores: Jerarquía de excepciones (7 clases custom)
-- ✅ Servicios >300 líneas: 4 (-6, 60% reducción)
+- ✅ Servicios >300 líneas: 3 (-7, 70% reducción)
   - TemplateService: 567 → 139 líneas (75% reducción)
   - ExerciseService: 434 → 109 líneas (75% reducción)
+  - UserPromotionService: 368 → 276 líneas (25% reducción)
 - ✅ Controllers con validación inline: 0 (-3, 100%)
   - Validación extraída a 6 FormRequest classes
 - ✅ Controllers simplificados: 30-40% más pequeños
@@ -1142,6 +1221,7 @@ Ninguna tarea actualmente en progreso.
   - `d55d3c9e` - P5: Split ExerciseService
   - `2a78fa1b` - P7: Extraer validadores
   - `18969cfa` - P8: Custom notification (completo)
+  - `c52a1dfc` - P-TEMP: UserPromotionService cleanup
 
 ### Documentación de Nuevas Features
 
@@ -1221,10 +1301,17 @@ Cada propuesta implementada debe cumplir:
   - Frontend URL configurable
   - **Backend + Notification = COMPLETO**
 
+- ✅ **P-TEMP Completado:** UserPromotionService Cleanup (1.5h)
+  - Extraída lógica temporal de auto-asignación (92 líneas)
+  - UserPromotionService: 368 → 276 líneas (25% reducción)
+  - Creado ProfessorAutoAssignmentService (145 líneas, @deprecated)
+  - Código temporal claramente marcado para futura eliminación
+
 - ✅ **Fase 2 Completada:** Todas las refactorizaciones medias implementadas
-- 📊 **Progreso actualizado:** 38% → 77% (10/13 tareas)
+- 📊 **Progreso actualizado:** 38% → 80% (11/13 tareas)
 - 📈 **Métricas actualizadas:**
-  - Servicios >300 líneas: 10 → 4 (60% reducción)
+  - Servicios >300 líneas: 10 → 3 (70% reducción)
   - Controllers con validación inline: 3 → 0 (100% eliminación)
   - Jerarquía de excepciones: 7 clases custom
-- 🎯 **Próximos pasos:** Fase 3 (Refactorizaciones Mayores)
+  - Código temporal aislado: 1 servicio @deprecated
+- 🎯 **Próximos pasos:** Fase 3 (Refactorizaciones Mayores) - 9 servicios >300 líneas restantes
