@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\ndocs: Add CLAUDE.md for AI-assisted development guidance\n\nAdd comprehensive documentation for Claude Code to understand:\n- Service-oriented architecture by domain\n- Dual user type system (local vs API)\n- Critical implementation patterns\n- Development and testing commands\n- Common troubleshooting tips\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git checkout:*)",
+      "Bash(git push:*)",
+      "Bash(git commit:*)",
+      "Bash(find:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

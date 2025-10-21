@@ -22,5 +22,8 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 
+# Trash backup (obsolete files)
+/.trash_backup
+
 # Private documentation
 SISTEMA_CONTROL_ACCESO.md
