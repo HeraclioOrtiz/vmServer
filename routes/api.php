@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\Gym\Admin\ExerciseController as GymExerciseController;
@@ -17,7 +18,24 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('auth')->group(function () {
     Route::post('login', [AuthController::class, 'login']);
     Route::post('register', [AuthController::class, 'register']);
-    
+
+    // Password Reset Routes (sin autenticación)
+    Route::prefix('password')->group(function () {
+        // Solicitar reset (rate limited: 5 por hora)
+        Route::post('/forgot', [PasswordResetController::class, 'requestReset'])
+            ->middleware('throttle:5,60');
+
+        // Validar token antes de mostrar formulario
+        Route::post('/validate-token', [PasswordResetController::class, 'validateToken']);
+
+        // Resetear contraseña
+        Route::post('/reset', [PasswordResetController::class, 'resetPassword'])
+            ->middleware('throttle:5,60');
+
+        // Verificar si puede resetear (por email o DNI)
+        Route::post('/can-reset', [PasswordResetController::class, 'canReset']);
+    });
+
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('logout', [AuthController::class, 'logout']);
         Route::get('me', [AuthController::class, 'me']);
