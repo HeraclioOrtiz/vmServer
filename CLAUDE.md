@@ -349,7 +349,17 @@ Total: ~$7.60 (vs ~$40 all Opus) - 81% savings
 
 ### ✅ Agentes Disponibles (`.claude/agents/`)
 
-7 agentes personalizados listos para usar:
+8 agentes personalizados listos para usar:
+
+#### 🎯 DEFAULT Agent (usa este para todo)
+
+**0. coordinator** (Haiku 4.5 - $1.00/$5.00) - **AGENTE POR DEFECTO**
+   - Analiza tu request y delega automáticamente al agente más barato
+   - Úsalo para cualquier tarea diaria - él decide qué agente especializado usar
+   - 3x más barato que Sonnet 4.5 para coordinación
+   - **Uso recomendado:** `@coordinator [tu tarea]` para CUALQUIER cosa
+
+#### Agentes Especializados (el coordinator los usa automáticamente)
 
 1. **git-automation** (Haiku 3 - $0.25/$1.25) - Git ops, commits, push
 2. **test-runner** (Haiku 3.5 - $0.80/$4.00) - Run tests, linters
@@ -359,7 +369,22 @@ Total: ~$7.60 (vs ~$40 all Opus) - 81% savings
 6. **refactorer** (Sonnet 4.5 - $3.00/$15.00) - Code refactoring
 7. **architect** (Opus 4.1 - $15.00/$75.00) - Design & architecture
 
-**Usage:** `@agent-name your request` or use `/agents` command
+**Workflow Recomendado:**
+```bash
+# ✅ MEJOR (más barato) - Usa coordinator para todo
+@coordinator ejecuta tests y commitea si pasan
+@coordinator arregla el error en LoginController
+@coordinator busca todos los usos de AuthService
+
+# ⚠️ OK (si sabes exactamente qué agente necesitas)
+@test-runner php artisan test
+@git-automation commit los cambios
+
+# ❌ CARO (evitar) - No invoques Sonnet/Opus directamente para tareas simples
+# Solo habla con Sonnet 4.5 para análisis muy complejos
+```
+
+**Ahorro Estimado:** 60-80% usando coordinator vs. usar Sonnet 4.5 directamente
 
 ---
 
