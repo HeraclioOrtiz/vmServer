@@ -37,7 +37,7 @@ class SocioDataMappingService
                 'celular' => $this->sanitizePhone($socio['celular'] ?? ''),
                 
                 // Información del club
-                'socio_id' => $this->parseInt($socio['socio_id'] ?? null),
+                'socio_id' => $this->parseInt($socio['Id'] ?? null),  // Campo 'Id' de la API externa
                 'socio_n' => $this->parseInt($socio['socio_n'] ?? null),
                 'categoria' => $this->sanitizeString($socio['categoria'] ?? ''),
                 'barcode' => $this->sanitizeString($socio['barcode'] ?? $dni),
@@ -101,7 +101,7 @@ class SocioDataMappingService
             'dni' => $dni,
             'nombre' => $this->sanitizeString($socio['nombre'] ?? ''),
             'apellido' => $this->sanitizeString($socio['apellido'] ?? ''),
-            'socio_id' => $this->parseInt($socio['socio_id'] ?? null),
+            'socio_id' => $this->parseInt($socio['Id'] ?? null),  // Campo 'Id' de la API externa
             'estado_socio' => $this->sanitizeString($socio['estado_socio'] ?? 'ACTIVO'),
             'semaforo' => $this->parseInt($socio['semaforo'] ?? 1),
         ];
