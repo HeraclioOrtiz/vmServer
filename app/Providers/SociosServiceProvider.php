@@ -50,6 +50,7 @@ class SociosServiceProvider extends ServiceProvider
             return new AuthenticationService(
                 $app->make(CacheService::class),
                 $app->make(UserRefreshService::class),
+                $app->make(UserPromotionService::class),
                 $app->make(PasswordValidationService::class)
             );
         });
