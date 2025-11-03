@@ -34,26 +34,32 @@ class MobileApiController extends Controller implements MobileApiInterface
      */
     public function login(string $dni, string $password): JsonResponse
     {
-        $user = $this->authService->authenticateByDni($dni, $password);
-        
-        if (!$user) {
+        try {
+            $result = $this->authService->authenticate($dni, $password);
+            
+            $token = $result->user->createToken('mobile-auth')->plainTextToken;
+            
+            $authResponse = new AuthResponseDTO(
+                token: $token,
+                user: UserDTO::fromModel($result->user),
+                fetchedFromApi: $result->user->user_type->value === 'api',
+                refreshed: $result->refreshed || $result->promoted
+            );
+
             return response()->json([
-                'message' => 'Credenciales inválidas'
-            ], 401);
+                'data' => $authResponse->toArray()
+            ]);
+            
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error durante la autenticación'
+            ], 500);
         }
-
-        $token = $user->createToken('mobile-auth')->plainTextToken;
-        
-        $authResponse = new AuthResponseDTO(
-            token: $token,
-            user: UserDTO::fromModel($user),
-            fetchedFromApi: $user->user_type->value === 'api',
-            refreshed: false
-        );
-
-        return response()->json([
-            'data' => $authResponse->toArray()
-        ]);
     }
 
     /**

@@ -7,7 +7,9 @@ use App\Enums\UserType;
 use App\DTOs\AuthResult;
 use App\Services\Core\CacheService;
 use App\Services\User\UserRefreshService;
+use App\Services\User\UserPromotionService;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class AuthenticationService
@@ -15,6 +17,7 @@ class AuthenticationService
     public function __construct(
         private CacheService $cacheService,
         private UserRefreshService $userRefreshService,
+        private UserPromotionService $userPromotionService,
         private PasswordValidationService $passwordValidationService
     ) {}
 
@@ -40,16 +43,26 @@ class AuthenticationService
         // 3. Validar password
         $this->passwordValidationService->validate($user, $password);
         
-        // 4. Auto-refresh para usuarios API si es necesario
         $refreshed = false;
+        $promoted = false;
+        
+        // 4. Intentar promoción automática para usuarios LOCAL (si está habilitado)
+        if ($this->shouldAttemptPromotion($user)) {
+            $promoted = $this->attemptPromotion($user);
+            if ($promoted) {
+                $user->refresh(); // Recargar usuario después de promoción
+            }
+        }
+        
+        // 5. Auto-refresh para usuarios API si es necesario
         if ($user->user_type === UserType::API && $user->needsRefresh()) {
             $refreshed = $this->userRefreshService->refreshFromApi($user);
         }
         
-        // 5. Actualizar cache
+        // 6. Actualizar cache
         $this->cacheService->putUser($user);
         
-        return new AuthResult($user, false, $refreshed);
+        return new AuthResult($user, false, $refreshed, $promoted);
     }
 
     /**
@@ -59,13 +72,23 @@ class AuthenticationService
     {
         $this->passwordValidationService->validate($cached, $password);
         
-        // Verificar si necesita refresh (solo usuarios API)
         $refreshed = false;
+        $promoted = false;
+        
+        // Intentar promoción automática para usuarios LOCAL (si está habilitado)
+        if ($this->shouldAttemptPromotion($cached)) {
+            $promoted = $this->attemptPromotion($cached);
+            if ($promoted) {
+                $cached->refresh(); // Recargar usuario después de promoción
+            }
+        }
+        
+        // Verificar si necesita refresh (solo usuarios API)
         if ($cached->user_type === UserType::API && $cached->needsRefresh()) {
             $refreshed = $this->userRefreshService->refreshFromApi($cached);
         }
         
-        return new AuthResult($cached, false, $refreshed);
+        return new AuthResult($cached, false, $refreshed, $promoted);
     }
 
     /**
@@ -94,5 +117,57 @@ class AuthenticationService
 
         // Buscar en base de datos
         return User::where('dni', $dni)->first();
+    }
+
+    /**
+     * Determina si se debe intentar promoción automática
+     */
+    private function shouldAttemptPromotion(User $user): bool
+    {
+        // Solo para usuarios LOCAL
+        if (!$user->canPromote()) {
+            return false;
+        }
+
+        // Verificar si está habilitado en configuración
+        if (!config('socios.sync.auto_promote_on_login', true)) {
+            return false;
+        }
+
+        // Respetar circuit breaker
+        if ($this->cacheService->isCircuitBreakerOpen()) {
+            Log::info('Circuit breaker abierto, saltando promoción en login', ['dni' => $user->dni]);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Intenta promover un usuario LOCAL a API
+     */
+    private function attemptPromotion(User $user): bool
+    {
+        try {
+            $wasPromoted = $this->userPromotionService->checkApiAndPromoteIfEligible($user);
+            
+            if ($wasPromoted) {
+                Log::info('Usuario promovido durante login', [
+                    'user_id' => $user->id,
+                    'dni' => $user->dni,
+                ]);
+            }
+            
+            return $wasPromoted;
+            
+        } catch (\Exception $e) {
+            Log::warning('Error intentando promoción durante login', [
+                'dni' => $user->dni,
+                'error' => $e->getMessage(),
+            ]);
+            
+            // No lanzar excepción para no bloquear el login
+            return false;
+        }
     }
 }

@@ -31,7 +31,8 @@ class AuthController extends Controller
                 'token' => $token,
                 'user' => $result->user,
                 'fetched_from_api' => $result->fetchedFromApi,
-                'refreshed' => $result->refreshed ?? false
+                'refreshed' => $result->refreshed ?? false,
+                'promoted' => $result->promoted ?? false
             ]);
             
         } catch (\Illuminate\Validation\ValidationException $e) {

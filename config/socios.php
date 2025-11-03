@@ -28,6 +28,7 @@ return [
     'sync' => [
         'refresh_threshold_hours' => env('SOCIOS_REFRESH_HOURS', 24),
         'auto_refresh' => env('SOCIOS_AUTO_REFRESH', true),
+        'auto_promote_on_login' => env('SOCIOS_AUTO_PROMOTE_ON_LOGIN', true),
     ],
 
     'cache' => [

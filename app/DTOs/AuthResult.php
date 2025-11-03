@@ -12,6 +12,7 @@ class AuthResult
     public function __construct(
         public User $user,
         public bool $fetchedFromApi = false,
-        public bool $refreshed = false
+        public bool $refreshed = false,
+        public bool $promoted = false
     ) {}
 }
